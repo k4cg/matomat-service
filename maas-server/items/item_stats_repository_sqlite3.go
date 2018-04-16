@@ -3,6 +3,8 @@ package items
 import (
 	"database/sql"
 	"errors"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type ItemStatsRepoSqlite3 struct {
@@ -65,7 +67,7 @@ func (r *ItemStatsRepoSqlite3) CountConsumption(itemID uint32, consumed uint32) 
 }
 
 func (r *ItemStatsRepoSqlite3) List() (map[uint32]ItemStats, error) {
-	var itemsStats map[uint32]ItemStats
+	itemsStats := make(map[uint32]ItemStats)
 	var err error
 
 	rows, err := r.db.Query("SELECT itemID, consumed FROM items_stats")

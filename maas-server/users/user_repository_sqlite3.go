@@ -3,6 +3,8 @@ package users
 import (
 	"database/sql"
 	"errors"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type UserRepoSqlite3 struct {
@@ -57,7 +59,7 @@ func (r *UserRepoSqlite3) GetByUsername(username string) (User, error) {
 }
 
 func (r *UserRepoSqlite3) List() (map[uint32]User, error) {
-	var users map[uint32]User
+	users := make(map[uint32]User)
 	var err error
 
 	rows, err := r.db.Query("SELECT ID, username, password, credits, admin FROM users")

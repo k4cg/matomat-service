@@ -3,6 +3,8 @@ package items
 import (
 	"database/sql"
 	"errors"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type ItemRepoSqlite3 struct {
@@ -38,7 +40,7 @@ func (r *ItemRepoSqlite3) Get(itemID uint32) (Item, error) {
 }
 
 func (r *ItemRepoSqlite3) List() (map[uint32]Item, error) {
-	var items map[uint32]Item
+	items := make(map[uint32]Item)
 	var err error
 
 	rows, err := r.db.Query("SELECT ID, name, cost FROM items")
