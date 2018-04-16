@@ -2,6 +2,7 @@ package items
 
 import (
 	"database/sql"
+	"errors"
 )
 
 type ItemRepoSqlite3 struct {
@@ -27,6 +28,10 @@ func (r *ItemRepoSqlite3) Get(itemID uint32) (Item, error) {
 			rows.Scan(&item.ID, &item.Name, &item.Cost)
 			break
 		}
+	}
+
+	if item == (Item{}) {
+		err = errors.New("No item found for given item ID")
 	}
 
 	return item, err

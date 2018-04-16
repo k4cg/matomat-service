@@ -20,10 +20,15 @@ import (
 
 const CONFIG_FILE_PATH = "config.yml"
 
-func buildRepos() (users.UserRepositoryInterface, items.ItemRepositoryInterface, items.ItemStatsRepositoryInterface) {
-	userRepo := users.NewUserRepoMem() //TODO use real implementation when done
-	itemRepo := items.NewItemRepoMem() //TODO use real implementation when done
-	itemStatsRepo := items.NewItemStatsRepoMem()
+func buildRepos(cfg *config.Config) (users.UserRepositoryInterface, items.ItemRepositoryInterface, items.ItemStatsRepositoryInterface) {
+	//TODO add error handling / checking on config value retrieval
+	userRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.users")
+	itemRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.items")
+	itemStatsRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.items_stats")
+
+	userRepo := users.NewUserRepoSqlite3(userRepoSqlite3DbFilePath)
+	itemRepo := items.NewItemRepoSqlite3(itemRepoSqlite3DbFilePath)
+	itemStatsRepo := items.NewItemStatsRepoSqlite3(itemStatsRepoSqlite3DbFilePath)
 
 	return userRepo, itemRepo, itemStatsRepo
 }
@@ -73,7 +78,7 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 func main() {
 	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
 	if err == nil {
-		userRepo, itemRepo, itemStatsRepo := buildRepos()
+		userRepo, itemRepo, itemStatsRepo := buildRepos(cfg)
 		auth := buildAuth(cfg)
 		users := buildUsers(cfg, userRepo)
 

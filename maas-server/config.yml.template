@@ -12,3 +12,8 @@ jwt:
   sig:
     secret: <HASH SALT>
   valid_sec: <JWT TOKEN VALIDITY IN SECONDS>
+db:
+  sqlite3:
+    items: ./db/matomat.db
+    users: ./db/matomat.db
+    items_stats: ./db/matomat.db
