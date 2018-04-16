@@ -77,12 +77,16 @@ func (uah *UsersApiHandler) UsersGet(w http.ResponseWriter, r *http.Request) {
 	status, response := getErrorForbiddenResponse()
 
 	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_GET) {
-		users := uah.users.ListUsers()
-		apiUsers := make(map[uint32]User)
-		for k, v := range users {
-			apiUsers[k] = newUser(v)
+		users, err := uah.users.ListUsers()
+		if err == nil {
+			apiUsers := make(map[uint32]User)
+			for k, v := range users {
+				apiUsers[k] = newUser(v)
+			}
+			status, response = getResponse(http.StatusOK, apiUsers)
+		} else {
+			status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 		}
-		status, response = getResponse(http.StatusOK, apiUsers)
 	}
 
 	w.WriteHeader(status)

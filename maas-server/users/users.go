@@ -24,7 +24,7 @@ func (ua *Users) GetUser(userId uint32) (User, error) {
 	return ua.userRepo.Get(userId)
 }
 
-func (ua *Users) ListUsers() map[uint32]User {
+func (ua *Users) ListUsers() (map[uint32]User, error) {
 	return ua.userRepo.List()
 }
 

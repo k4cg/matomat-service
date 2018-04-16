@@ -6,7 +6,7 @@ ssl:
   cert: server.cert.pem
 auth:
   hash:
-    rounds: <NUMBER OF HASHING ROUNDS FOR BCRYPT>
+    rounds: 10
 jwt:
   issuer: <TOKEN ISSUER>
   sig:

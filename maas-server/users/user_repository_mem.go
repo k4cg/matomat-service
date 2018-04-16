@@ -10,8 +10,6 @@ type UserRepoMem struct {
 	usersDeleted  map[uint32]User
 }
 
-const ERROR_UNKOWN_USER string = "Unkown user"
-
 func NewUserRepoMem() *UserRepoMem {
 	return &UserRepoMem{users: make(map[uint32]User), usersDeleted: make(map[uint32]User), autoIncrement: 1}
 }
@@ -40,8 +38,8 @@ func (r *UserRepoMem) GetByUsername(username string) (User, error) {
 	return user, err
 }
 
-func (r *UserRepoMem) List() map[uint32]User {
-	return r.users
+func (r *UserRepoMem) List() (map[uint32]User, error) {
+	return r.users, nil
 }
 
 func (r *UserRepoMem) Save(user User) (User, error) {
