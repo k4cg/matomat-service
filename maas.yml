@@ -1,0 +1,706 @@
+openapi: 3.0.0
+info:
+  title: MaaS
+  description: Draft for MaaS (Matomat as a Service)
+  version: 0.2.0
+servers:
+  - url: https://maas.intern.k4cg.org/v0
+    description: The production server
+  - url: https://localhost:8443/v0
+    description: Local test setup
+tags:
+- name: auth
+  description: Authentication and authorization related operations
+- name: users
+  description: User management related operations
+- name: items
+  description: Item related operations
+paths:
+  /auth/login:
+    post:
+      tags:
+      - auth
+      summary: Logs a user in and returns an JWT token for authentication
+      description: Logs a user in and returns an JWT token for authentication
+      requestBody:
+        description: User information required for login
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        200:
+          description: Success
+        400:
+          description: Invalid username/password supplied
+  /items:
+    get:
+      tags:
+      - items
+      summary: List all available items
+      description: Returns a map of item objects, with the item ID as key and the object as value
+      responses:
+        200:
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - items
+      summary: Add a new item
+      description: Adds a new item to matomat. This can only be done by admins
+      requestBody:
+        description: Information required to create an item
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: The name of the item
+                  type: string
+                cost:
+                  description: The number of credits a single consumption of this Item requires (unit for credits is smallest unit in currency used)
+                  type: integer
+                  format: int32
+                  minimum: 0
+              required:
+                - name
+                - cost              
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /items/stats:
+    get:
+      tags:
+      - items
+      summary: Get consumption stats of all items
+      description: Get the matomat stats for all items
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemStats'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /items/{itemId}:
+    get:
+      tags:
+      - items
+      summary: Get a certain Item
+      description: Get a certain Item
+      parameters:
+      - in: path
+        name: itemId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the Item that needs to be fetched
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:          
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+      - items
+      summary: Update Item
+      description: Update Item. This can only be done by admins
+      parameters:
+      - in: path
+        name: itemId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the Item that needs to be updated
+      requestBody:
+        description: Information required to update an item
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: The name of the item
+                  type: string
+                cost:
+                  description: The number of credits a single consumption of this Item requires (unit for credits is smallest unit in currency used)
+                  type: integer
+                  format: int32
+                  minimum: 0
+              required:
+                - name
+                - cost 
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:          
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - items
+      summary: Delete Item
+      description: Delete the Item. This can only be done by admins. (Should only mark a Item as deleted to not loose reference for stats)
+      parameters:
+      - in: path
+        name: itemId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the Item that needs to be deleted
+      responses:
+        200:
+          description: Success. Returns the deleted item object
+          content:
+            application/json:
+              schema:          
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /items/{itemId}/consume:
+    put:
+      tags:
+      - items
+      summary: Consumes a Item
+      description: Consumes a Item and subtracts the cost of the Item from the credit of the user. If not enough credit exists the operation will be rejected
+      parameters:
+      - in: path
+        name: itemId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the Item that needs to be consumed
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:          
+                $ref: '#/components/schemas/ItemStats'
+        412:
+          description: Not enough credits to consume Item
+          content:
+            application/json:          
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /items/{itemId}/stats:
+    get:
+      tags:
+      - items
+      summary: Get consumption stats
+      description: Get the matomat stats for a certain Item
+      parameters:
+      - in: path
+        name: itemId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the Item for which to fetch the stats
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: ''#/components/schemas/Item'Stats'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users:
+    get:
+      tags:
+      - users
+      summary: List all users
+      description: List all users
+      responses:
+        200:
+          description: List of user objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - users
+      summary: Add a new user
+      description: Add a new user. Only admin users are allowed to do this
+      requestBody:
+        description: Information required to create an user
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: The name of the user
+                  type: string
+                password:
+                  type: string
+                passwordrepeat:
+                  type: string
+              required:
+                - name
+                - password
+                - passwordrepeat
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}:
+    get:
+      tags:
+      - users
+      summary: Get user by user ID
+      description: Get user by user ID. Returns a user object
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The user ID that needs to be fetched
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - users
+      summary: Delete user
+      description: Delete user. This can only be done by the logged in user (for self) or an admin
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user to be deleted
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/credits/add:
+    put:
+      tags:
+      - users
+      summary: Add users credits
+      description: Add users credits. This can only be done by the logged in user
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user for which the credits should be changed
+      requestBody:
+        description: Credits withdrawl information
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                credits:
+                  type: integer
+                  format: int32
+                  minimum: 0
+              required:
+                - credits
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/credits/withdraw:
+    put:
+      tags:
+      - users
+      summary: Widthdraw users credits
+      description: Widthdraw users credits. A user can only withdraw as many credits as she currently has, if more than available are attempted to withdraw, an error is returned and no withdrawl performed. This can only be done by the logged in user
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user for which the credits should be changed
+      requestBody:
+        description: A - not negative - amount of credits
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                credits:
+                  type: integer
+                  format: int32
+                  minimum: 0
+              required:
+                - credits
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        412:
+          description: Not enough credits to withdraw desired amount
+          content:
+            application/json:          
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/credits/transfer:
+    put:
+      tags:
+      - users
+      summary: Transfer credits
+      description: Transfers credits from logged in user to given user
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user to transfer credits to
+      requestBody:
+        description: A - not negative - amount of credits to transfer
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                credits:
+                  type: integer
+                  format: int32
+                  minimum: 0
+              required:
+                - credits        
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferredCredits'
+        412:
+          description: Not enough credits to transfer desired amount
+          content:
+            application/json:          
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/stats:
+    get:
+      tags:
+      - users
+      summary: Get matomat stats for user
+      description: Get the matomat stats for user. A user can only request the stats for herself
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user for which to fetch the stats
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/password:
+    put:
+      tags:
+      - users
+      summary: Set password for currently logged in user.
+      description: Set password for currently logged in user. TODO must provide old and new password (twice) in order to be allowed to change it.
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user do which the password should be changed
+      requestBody:
+        description: The new password
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                passwordnew:
+                  type: string
+                passwordrepeat:
+                  type: string
+              required:
+                - password
+                - passwordnew
+                - passwordrepeat
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/password:
+    put:
+      tags:
+      - users
+      summary: Set password for user ID
+      description: Set password for user ID. This can only be done by the logged by a admin for a different user. TODO expect the new password (twice)
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user do which the password should be changed
+      requestBody:
+        description: The new password
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                passwordnew:
+                  type: string
+                passwordrepeat:
+                  type: string
+              required:
+                - passwordnew
+                - passwordrepeat
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        username:
+          type: string
+        credits:
+          type: integer
+          format: int32
+    TransferredCredits:
+      description: The information on the sending user after the transaction, as well as the amount transferred
+      type: object
+      properties:
+        sender:
+          $ref: '#/components/schemas/User'
+        credits:
+          type: integer
+          format: int32
+    UserStats:
+      description: Consumption stats of a user
+      type: array
+      items:
+        $ref: '#/components/schemas/ItemStats'
+    Item:
+      description: Represenation of a Item, containing its name and cost (in credits)
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string          
+        cost:
+          type: integer
+          format: int32
+    ItemStats:
+      description: Stats on a certain item
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        cost:
+          type: integer
+          format: int32
+        consumed:
+          type: integer
+          format: int32
+    Error:
+      description: Represenation of an error
+      type: object
+      properties:
+        message:
+          type: string

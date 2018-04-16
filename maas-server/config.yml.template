@@ -1,0 +1,14 @@
+listen:
+  addr: <ADDR TO LISTEN ON> 
+  port: 8443
+ssl:
+  key: server.key.pem
+  cert: server.cert.pem
+auth:
+  hash:
+    rounds: <NUMBER OF HASHING ROUNDS FOR BCRYPT>
+jwt:
+  issuer: <TOKEN ISSUER>
+  sig:
+    secret: <HASH SALT>
+  valid_sec: <JWT TOKEN VALIDITY IN SECONDS>

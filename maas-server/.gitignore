@@ -1,0 +1,7 @@
+server
+server.exe
+*.key
+*.pem
+*.crt
+test.html
+config.yml
