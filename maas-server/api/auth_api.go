@@ -30,7 +30,7 @@ func extractLoginData(r *http.Request) (string, string, uint32, error) {
 
 	userName, err := formGet(r, FORM_KEY_USERNAME)
 	userPassword, err := formGet(r, FORM_KEY_PASSWORD)
-	tokenValiditySeconds, err := formGetInt32(r, FORM_KEY_TOKEN_VALIDITY_SECONDS)
+	tokenValiditySeconds, _ := formGetInt32(r, FORM_KEY_TOKEN_VALIDITY_SECONDS)
 
 	//TODO again, another evil cast ...
 	return userName, userPassword, uint32(tokenValiditySeconds), err
@@ -47,14 +47,15 @@ func (aah *AuthApiHandler) AuthLoginPost(w http.ResponseWriter, r *http.Request)
 			claims := aah.auth.NewAuthTokenClaims(users.ID, users.Username, tokenValiditySeconds)
 			token, err := aah.auth.GetToken(claims)
 			if err == nil {
-				status = http.StatusOK
-				response = []byte(token) //TODO properly wrap the response / pack it in the right place (headers?)
+				status, response = getResponse(http.StatusOK, newAuthSuccess(token, uint32(claims.ExpiresAt))) //TODO another evil cast...
 			} else {
 				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 			}
 		} else {
 			status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusUnauthorized, err.Error())
 	}
 
 	w.WriteHeader(status)

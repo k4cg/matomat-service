@@ -21,6 +21,8 @@ paths:
       - auth
       summary: Logs a user in and returns an JWT token for authentication
       description: Logs a user in and returns an JWT token for authentication. The passes along validitiyseconds determine how long the token should be available.
+      consumes:
+        - application/x-www-form-urlencoded      
       parameters:
         - in: formData
           name: username
@@ -65,6 +67,8 @@ paths:
       - items
       summary: Add a new item
       description: Adds a new item to matomat. This can only be done by admins
+      consumes:
+        - application/x-www-form-urlencoded      
       produces:
         - application/json
       parameters:
@@ -133,6 +137,8 @@ paths:
       - items
       summary: Update Item
       description: Update Item. This can only be done by admins
+      consumes:
+        - application/x-www-form-urlencoded      
       produces:
         - application/json      
       parameters:
@@ -244,6 +250,8 @@ paths:
       - users
       summary: Add a new user
       description: Add a new user. Only admin users are allowed to do this
+      consumes:
+        - application/x-www-form-urlencoded      
       produces:
         - application/json
       parameters:
@@ -313,6 +321,8 @@ paths:
       - users
       summary: Add users credits
       description: Add users credits. This can only be done by the logged in user
+      consumes:
+        - application/x-www-form-urlencoded      
       produces:
         - application/json
       parameters:
@@ -341,6 +351,8 @@ paths:
       - users
       summary: Widthdraw users credits
       description: Widthdraw users credits. A user can only withdraw as many credits as she currently has, if more than available are attempted to withdraw, an error is returned and no withdrawl performed. This can only be done by the logged in user
+      consumes:
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
@@ -373,6 +385,8 @@ paths:
       - users
       summary: Transfer credits
       description: Transfers credits from logged in user to given user
+      consumes:
+        - application/x-www-form-urlencoded      
       produces:
         - application/json
       parameters:
@@ -428,6 +442,8 @@ paths:
       - users
       summary: Set password for currently logged in user.
       description: Set password for currently logged in user. TODO must provide old and new password (twice) in order to be allowed to change it.
+      consumes:
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
@@ -463,6 +479,8 @@ paths:
       - users
       summary: Set password for user ID
       description: Set password for user ID. This can only be done by the logged by a admin for a different user. TODO expect the new password (twice)
+      consumes:
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:

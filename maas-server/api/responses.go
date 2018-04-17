@@ -50,3 +50,12 @@ type ItemStats struct {
 func newItemStats(item items.Item, itemStats items.ItemStats) ItemStats {
 	return ItemStats{ID: item.ID, Name: item.Name, Cost: item.Cost, Consumed: itemStats.Consumed}
 }
+
+type AuthSuccess struct {
+	Token               string `json:"token"`
+	ExpirationTimestamp uint32 `json:"expires"`
+}
+
+func newAuthSuccess(token string, expirationTimestamp uint32) AuthSuccess {
+	return AuthSuccess{Token: token, ExpirationTimestamp: expirationTimestamp}
+}
