@@ -21,7 +21,7 @@ paths:
       tags:
       - auth
       summary: Logs a user in and returns an JWT token for authentication
-      description: Logs a user in and returns an JWT token for authentication
+      description: Logs a user in and returns an JWT token for authentication. The passes along validitiyseconds determine how long the token should be available.
       requestBody:
         description: User information required for login
         required: true
@@ -34,12 +34,22 @@ paths:
                   type: string
                 password:
                   type: string
+                validityseconds:
+                  type: integer
+                  format: int32
+                  minimum: 0
               required:
                 - username
                 - password
       responses:
         200:
           description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthSuccess'          
         400:
           description: Invalid username/password supplied
   /items:
@@ -646,6 +656,14 @@ components:
       scheme: bearer
       bearerFormat: JWT    # optional, arbitrary value for documentation purposes
   schemas:
+    AuthSuccess:
+      type: object
+      properties:
+        token:
+          type: string
+        expires:
+          type: integer
+          format: int32        
     User:
       type: object
       properties:
