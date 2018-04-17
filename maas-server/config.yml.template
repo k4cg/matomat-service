@@ -19,3 +19,4 @@ db:
     items: ./db/matomat.db
     users: ./db/matomat.db
     items_stats: ./db/matomat.db
+    user_items_stats: ./db/matomat.db

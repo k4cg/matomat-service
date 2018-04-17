@@ -14,6 +14,11 @@ CREATE TABLE `items_stats` (
 	`itemID` INTEGER PRIMARY KEY,
 	`consumed` INTEGER NOT NULL
 );
+CREATE TABLE `user_items_stats` (
+	`userID` INTEGER PRIMARY KEY,
+	`itemID` INTEGER NOT NULL,
+	`consumed` INTEGER NOT NULL
+);
 CREATE TABLE `users` (
 	`ID` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`username` VARCHAR(256) NOT NULL,

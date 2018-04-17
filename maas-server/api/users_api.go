@@ -5,7 +5,6 @@ There sees to be too much boilderplate code. Solve this more cleverly (deepen un
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/k4cg/matomat-service/maas-server/users"
@@ -213,9 +212,27 @@ func (uah *UsersApiHandler) UsersUseridStatsGet(w http.ResponseWriter, r *http.R
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
 
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_STATS_GET) {
-		status = http.StatusNotImplemented
-		response, _ = json.Marshal(ERROR_NOT_IMPLEMENTED) //TODO implement!
+	userID, err := extractIDFromModelGet(r.URL.Path)
+
+	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_STATS_GET) && err == nil && userID != 0 {
+		items, err := uah.matomat.ItemsList()
+		if err == nil {
+			itemStatsList, err := uah.matomat.UsersUseridStatsGet(userID)
+			if err == nil {
+				apiItemStats := make(map[uint32]ItemStats)
+				for k, v := range items {
+					itemStats, found := itemStatsList[k]
+					if found {
+						apiItemStats[k] = newItemStats(v, itemStats)
+					}
+				}
+				status, response = getResponse(http.StatusOK, apiItemStats)
+			} else {
+				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+		}
 	}
 
 	w.WriteHeader(status)

@@ -8,10 +8,11 @@ import (
 )
 
 type Matomat struct {
-	eventDispatcher EventDispatcherInterface
-	userRepo        users.UserRepositoryInterface
-	itemRepo        items.ItemRepositoryInterface
-	itemStatsRepo   items.ItemStatsRepositoryInterface
+	eventDispatcher    EventDispatcherInterface
+	userRepo           users.UserRepositoryInterface
+	itemRepo           items.ItemRepositoryInterface
+	itemStatsRepo      items.ItemStatsRepositoryInterface
+	userItemsStatsRepo users.UserItemsStatsRepositoryInterface
 }
 
 //TODO is this the right place to put the actions? should they be moved out?
@@ -43,8 +44,8 @@ const ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS string = "Not enough credit
 const ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED string = "Only credit amounts greater or equal to zero allowed"
 const ERROR_UNKNOWN_ITEM string = "Unkown item"
 
-func NewMatomat(eventDispatcher EventDispatcherInterface, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface) *Matomat {
-	return &Matomat{eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo}
+func NewMatomat(eventDispatcher EventDispatcherInterface, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
+	return &Matomat{eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo, userItemsStatsRepo: userItemsStatsRepo}
 }
 
 func (m *Matomat) IsAllowed(userID uint32, action string) bool {
@@ -225,4 +226,8 @@ func (m *Matomat) UserCreditsWithdraw(userID uint32, credits int32) (users.User,
 		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
 	return user, err
+}
+
+func (m *Matomat) UsersUseridStatsGet(userID uint32) (map[uint32]items.ItemStats, error) {
+	return m.userItemsStatsRepo.Get(userID)
 }

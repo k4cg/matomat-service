@@ -20,17 +20,19 @@ import (
 
 const CONFIG_FILE_PATH = "config.yml"
 
-func buildRepos(cfg *config.Config) (users.UserRepositoryInterface, items.ItemRepositoryInterface, items.ItemStatsRepositoryInterface) {
+func buildRepos(cfg *config.Config) (users.UserRepositoryInterface, items.ItemRepositoryInterface, items.ItemStatsRepositoryInterface, users.UserItemsStatsRepositoryInterface) {
 	//TODO add error handling / checking on config value retrieval
 	userRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.users")
 	itemRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.items")
 	itemStatsRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.items_stats")
+	userItemsStatsRepoSqlite3DbFilePath, _ := cfg.String("db.sqlite3.user_items_stats")
 
 	userRepo := users.NewUserRepoSqlite3(userRepoSqlite3DbFilePath)
 	itemRepo := items.NewItemRepoSqlite3(itemRepoSqlite3DbFilePath)
 	itemStatsRepo := items.NewItemStatsRepoSqlite3(itemStatsRepoSqlite3DbFilePath)
+	userItemStatsRepo := users.NewUserItemsStatsRepoSqlite3(userItemsStatsRepoSqlite3DbFilePath)
 
-	return userRepo, itemRepo, itemStatsRepo
+	return userRepo, itemRepo, itemStatsRepo, userItemStatsRepo
 }
 
 func buildApiHandlers(auth auth.AuthInterface, users *users.Users, matomat *matomat.Matomat) (*api.AuthApiHandler, *api.UsersApiHandler, *api.ItemsApiHandler) {
@@ -79,12 +81,12 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 func main() {
 	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
 	if err == nil {
-		userRepo, itemRepo, itemStatsRepo := buildRepos(cfg)
+		userRepo, itemRepo, itemStatsRepo, userItemStatsRepo := buildRepos(cfg)
 		auth := buildAuth(cfg)
 		users := buildUsers(cfg, userRepo)
 
 		eventDispatcherMqtt := matomat.NewEventDispatcherMqtt() //TODO intialize properly when implemented
-		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo)
+		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
 
 		authApiHandler, usersApiHandler, itemsApiHandler := buildApiHandlers(auth, users, matomat)
 
