@@ -54,8 +54,9 @@ func buildAuth(cfg *config.Config) *auth.AuthJWT {
 	//TODO add error handling / checking on config value retrieval
 	issuer, _ := cfg.String("jwt.issuer")
 	secret, _ := cfg.String("jwt.sig.secret")
-	secondsValid, _ := cfg.Int("jwt.valid_sec")
-	return auth.NewAuthJWT(issuer, secret, uint32(secondsValid))
+	secondsValidDefault, _ := cfg.Int("jwt.valid_sec.default")
+	secondsValidMax, _ := cfg.Int("jwt.valid_sec.max")
+	return auth.NewAuthJWT(issuer, secret, uint32(secondsValidDefault), uint32(secondsValidMax))
 }
 
 func buildUsers(cfg *config.Config, userRepo users.UserRepositoryInterface) *users.Users {

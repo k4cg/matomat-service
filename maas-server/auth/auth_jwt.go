@@ -8,21 +8,27 @@ import (
 )
 
 type AuthJWT struct {
-	tokenSigningSecret   string
-	tokenValiditySeconds uint32
-	tokenIssuer          string
+	tokenSigningSecret          string
+	defaultTokenValiditySeconds uint32
+	maximumTokenValiditySeconds uint32
+	tokenIssuer                 string
 }
 
-func NewAuthJWT(tokenIssuer string, tokenSigningSecret string, tokenValiditySeconds uint32) *AuthJWT {
-	return &AuthJWT{tokenIssuer: tokenIssuer, tokenSigningSecret: tokenSigningSecret, tokenValiditySeconds: tokenValiditySeconds}
+func NewAuthJWT(tokenIssuer string, tokenSigningSecret string, defaultTokenValiditySeconds uint32, maximumTokenValiditySeconds uint32) *AuthJWT {
+	return &AuthJWT{tokenIssuer: tokenIssuer, tokenSigningSecret: tokenSigningSecret, defaultTokenValiditySeconds: defaultTokenValiditySeconds, maximumTokenValiditySeconds: maximumTokenValiditySeconds}
 }
 
-func (a *AuthJWT) NewAuthTokenClaims(userID uint32, userName string) AuthTokenClaims {
+func (a *AuthJWT) NewAuthTokenClaims(userID uint32, userName string, requestedTokenValiditySeconds uint32) AuthTokenClaims {
+	tokenValiditySeconds := a.defaultTokenValiditySeconds
+	if requestedTokenValiditySeconds > 0 && requestedTokenValiditySeconds <= a.maximumTokenValiditySeconds {
+		tokenValiditySeconds = requestedTokenValiditySeconds
+	}
+
 	claims := AuthTokenClaims{
 		userID,
 		userName,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Second * time.Duration(a.tokenValiditySeconds)).Unix(),
+			ExpiresAt: time.Now().Add(time.Second * time.Duration(tokenValiditySeconds)).Unix(),
 			Issuer:    a.tokenIssuer,
 		},
 	}

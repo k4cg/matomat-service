@@ -11,7 +11,9 @@ jwt:
   issuer: <TOKEN ISSUER>
   sig:
     secret: <HASH SALT>
-  valid_sec: <JWT TOKEN VALIDITY IN SECONDS>
+  valid_sec: 
+    default: <JWT TOKEN VALIDITY IN SECONDS>
+    max: 15552000
 db:
   sqlite3:
     items: ./db/matomat.db

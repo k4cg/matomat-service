@@ -23,26 +23,28 @@ func NewAuthApiHandler(auth auth.AuthInterface, users *users.Users) *AuthApiHand
 	return &AuthApiHandler{auth: auth, users: users}
 }
 
-func extractLoginData(r *http.Request) (string, string, error) {
+func extractLoginData(r *http.Request) (string, string, uint32, error) {
 	var err error
 
 	r.ParseForm()
 
 	userName, err := formGet(r, FORM_KEY_USERNAME)
 	userPassword, err := formGet(r, FORM_KEY_PASSWORD)
+	tokenValiditySeconds, err := formGetInt32(r, FORM_KEY_TOKEN_VALIDITY_SECONDS)
 
-	return userName, userPassword, err
+	//TODO again, another evil cast ...
+	return userName, userPassword, uint32(tokenValiditySeconds), err
 }
 
 func (aah *AuthApiHandler) AuthLoginPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := http.StatusUnauthorized, []byte(ERROR_UNAUTHORIZED)
 
-	userName, userPassword, err := extractLoginData(r)
+	userName, userPassword, tokenValiditySeconds, err := extractLoginData(r)
 	if err == nil {
 		users, err := aah.users.IsPasswordValid(userName, userPassword)
 		if err == nil {
-			claims := aah.auth.NewAuthTokenClaims(users.ID, users.Username)
+			claims := aah.auth.NewAuthTokenClaims(users.ID, users.Username, tokenValiditySeconds)
 			token, err := aah.auth.GetToken(claims)
 			if err == nil {
 				status = http.StatusOK
