@@ -20,3 +20,7 @@ db:
     users: ./db/matomat.db
     items_stats: ./db/matomat.db
     user_items_stats: ./db/matomat.db
+mqtt:
+	clientID: matomat-server
+	connectionString: <CONNECTION STRING, EXAMPLE: tcp://localhost:4242>
+	topic: <NAME OF THE MQTT TOPIC, EXAMPLE: matomat>

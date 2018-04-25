@@ -67,6 +67,14 @@ func buildUsers(cfg *config.Config, userRepo users.UserRepositoryInterface) *use
 	return users.NewUsers(userRepo, hashRounds)
 }
 
+func buildEventDispatcher(cfg *config.Config) *EventDispatcherMqtt {
+	//TODO add error handling / checking on config value retrieval
+	clientID := cfg.String("mqtt.clientID")
+	connectionString := cfg.String("mqtt.connectionString")
+	topic := cfg.String("mqtt.topic")
+	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic)
+}
+
 func runServer(cfg *config.Config, router *mux.Router) error {
 	//TODO add error handling / checking on config value retrieval
 	addr, _ := cfg.String("listen.addr")
@@ -85,7 +93,7 @@ func main() {
 		auth := buildAuth(cfg)
 		users := buildUsers(cfg, userRepo)
 
-		eventDispatcherMqtt := matomat.NewEventDispatcherMqtt() //TODO intialize properly when implemented
+		eventDispatcherMqtt := buildEventDispatcher(cfg)
 		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
 
 		authApiHandler, usersApiHandler, itemsApiHandler := buildApiHandlers(auth, users, matomat)

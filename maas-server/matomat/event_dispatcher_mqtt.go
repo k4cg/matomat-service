@@ -1,17 +1,42 @@
 package matomat
 
-//TODO add real implementation
+import (
+	"strconv"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+)
+
 type EventDispatcherMqtt struct {
+	connectionString string
+	clientID         string
+	topic            string
+	client           MQTT.Client
 }
 
-//TODO add real implementation
-func NewEventDispatcherMqtt() *EventDispatcherMqtt {
-	return &EventDispatcherMqtt{}
+func NewEventDispatcherMqtt(connectionString string, clientID string, topic string) *EventDispatcherMqtt {
+	opts := MQTT.NewClientOptions().AddBroker(connectionString) //connectionString example: "tcp://localhost:4242"
+	opts.SetClientID(clientID)                                  //clientID example: "matomat-server"
+	return &EventDispatcherMqtt{connectionString: connectionString, clientID: clientID, topic: topic, client: MQTT.NewClient(opts)}
 }
 
-//TODO add real implementation
+//TODO should the username be passed in????
 func (ed *EventDispatcherMqtt) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost uint32) error {
 	var err error
 
+	//start a mqtt client
+	if token := ed.client.Connect(); token.Wait() && token.Error() != nil {
+		err = token.Error()
+	} else {
+		token := ed.client.Publish(ed.topic, 0, false, buildItemConsumedMessage(userID, username, itemID, itemName, itemCost))
+		//wait for receipt from broker
+		token.Wait()
+		ed.client.Disconnect(250)
+	}
+
 	return err
+}
+
+func buildItemConsumedMessage(userID uint32, username string, itemID uint32, itemName string, itemCost uint32) string {
+	message := "matomat;item-consumed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) //TODO implement proper message format
+	return message
 }

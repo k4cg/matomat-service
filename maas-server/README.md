@@ -3,8 +3,8 @@ Implementation of Matomat As A Service using Golang.
 Work in progress, feel free to contribute.
 
 ## Biggest TODOs
-- Implement Event dispatching to MQTT
-- TEST the freshly implemented sqlit3 implementation
+- Properly set MQTT message format
+- Implement service stats
 
 ## Installation
 1. Create a sqlite3 db at the desired location using `sqlite3 matomat.db < schema.sql; sqlite3 matomat.db < initial_data.sql`
