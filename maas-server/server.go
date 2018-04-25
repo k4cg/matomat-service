@@ -67,7 +67,7 @@ func buildUsers(cfg *config.Config, userRepo users.UserRepositoryInterface) *use
 	return users.NewUsers(userRepo, hashRounds)
 }
 
-func buildEventDispatcher(cfg *config.Config) *EventDispatcherMqtt {
+func buildEventDispatcher(cfg *config.Config) matomat.EventDispatcherInterface {
 	//TODO add error handling / checking on config value retrieval
 	clientID, _ := cfg.String("mqtt.clientID")
 	connectionString, _ := cfg.String("mqtt.connectionString")
