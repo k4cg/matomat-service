@@ -69,9 +69,9 @@ func buildUsers(cfg *config.Config, userRepo users.UserRepositoryInterface) *use
 
 func buildEventDispatcher(cfg *config.Config) *EventDispatcherMqtt {
 	//TODO add error handling / checking on config value retrieval
-	clientID := cfg.String("mqtt.clientID")
-	connectionString := cfg.String("mqtt.connectionString")
-	topic := cfg.String("mqtt.topic")
+	clientID, _ := cfg.String("mqtt.clientID")
+	connectionString, _ := cfg.String("mqtt.connectionString")
+	topic, _ := cfg.String("mqtt.topic")
 	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic)
 }
 
