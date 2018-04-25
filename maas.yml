@@ -649,6 +649,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /service/stats:
+    get:
+      tags:
+      - service
+      summary: Total service stats 
+      description: Total service stats
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStats'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme
@@ -716,6 +735,49 @@ components:
         consumed:
           type: integer
           format: int32
+    ServiceStats:
+      description: Stats on the service
+      type: object
+      properties:
+        items:
+          type: object
+          properties:
+            count:
+              type: integer
+              format: int32
+            cost:
+              type: object
+              properties:
+                avg:
+                  type: integer
+                  format: int32
+                min:
+                  type: integer
+                  format: int32
+                max:
+                  type: integer
+                  format: int32
+        users:
+          type: object
+          properties:
+            count:
+              type: integer
+              format: int32                
+            credits:
+              type: object
+              properties:
+                sum:
+                  type: integer
+                  format: int32
+                avg:
+                  type: integer
+                  format: int32
+                min:
+                  type: integer
+                  format: int32
+                max:
+                  type: integer
+                  format: int32
     Error:
       description: Represenation of an error
       type: object
