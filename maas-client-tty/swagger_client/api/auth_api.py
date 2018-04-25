@@ -33,7 +33,7 @@ class AuthApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    def auth_login_post(self, username, password, **kwargs):  # noqa: E501
+    def auth_login_post(self, username: object, password: object, kwargs: object) -> object:  # noqa: E501
         """Logs a user in and returns an JWT token for authentication  # noqa: E501
 
         Logs a user in and returns an JWT token for authentication. The passes along validitiyseconds determine how long the token should be available.  # noqa: E501
