@@ -16,6 +16,27 @@ func BuildItemsRoutes(auth auth.AuthInterface, handler *ItemsApiHandler) []Route
 		},
 
 		Route{
+			"ItemsGet",
+			strings.ToUpper("Get"),
+			"/v0/items",
+			AuthenticationMiddleware(auth, handler.ItemsGet),
+		},
+
+		Route{
+			"ItemsPost",
+			strings.ToUpper("Post"),
+			"/v0/items",
+			AuthenticationMiddleware(auth, handler.ItemsPost),
+		},
+
+		Route{
+			"ItemsStatsGet",
+			strings.ToUpper("Get"),
+			"/v0/items/stats",
+			AuthenticationMiddleware(auth, handler.ItemsStatsGet),
+		},
+
+		Route{
 			"ItemsItemidConsumePut",
 			strings.ToUpper("Put"),
 			"/v0/items/{itemid}/consume",
@@ -48,27 +69,6 @@ func BuildItemsRoutes(auth auth.AuthInterface, handler *ItemsApiHandler) []Route
 			strings.ToUpper("Get"),
 			"/v0/items/{itemid}/stats",
 			AuthenticationMiddleware(auth, handler.ItemsItemidStatsGet),
-		},
-
-		Route{
-			"ItemsGet",
-			strings.ToUpper("Get"),
-			"/v0/items",
-			AuthenticationMiddleware(auth, handler.ItemsGet),
-		},
-
-		Route{
-			"ItemsPost",
-			strings.ToUpper("Post"),
-			"/v0/items",
-			AuthenticationMiddleware(auth, handler.ItemsPost),
-		},
-
-		Route{
-			"ItemsStatsGet",
-			strings.ToUpper("Get"),
-			"/v0/items/stats",
-			AuthenticationMiddleware(auth, handler.ItemsStatsGet),
 		},
 	}
 	return routes
