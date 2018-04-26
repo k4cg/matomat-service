@@ -87,7 +87,7 @@ func (r *ItemRepoSqlite3) Delete(itemID uint32) (Item, error) {
 	var err error
 	item, err = r.Get(itemID)
 	if err == nil {
-		stmt, err := r.db.Prepare("DELETE FROM items WHERE ID=? LIMIT 1")
+		stmt, err := r.db.Prepare("DELETE FROM items WHERE ID=?")
 		if err == nil {
 			_, err = stmt.Exec(item.ID)
 			stmt.Close()

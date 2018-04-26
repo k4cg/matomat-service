@@ -123,7 +123,7 @@ func (r *UserRepoSqlite3) Delete(userID uint32) (User, error) {
 	var err error
 	user, err = r.Get(userID)
 	if err == nil {
-		stmt, err := r.db.Prepare("DELETE FROM users WHERE ID=? LIMIT 1")
+		stmt, err := r.db.Prepare("DELETE FROM users WHERE ID=?")
 		if err == nil {
 			_, err = stmt.Exec(user.ID)
 			stmt.Close()
