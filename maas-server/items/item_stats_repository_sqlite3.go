@@ -2,7 +2,6 @@ package items
 
 import (
 	"database/sql"
-	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -31,10 +30,6 @@ func (r *ItemStatsRepoSqlite3) Get(itemID uint32) (ItemStats, error) {
 			break
 		}
 		rows.Close()
-	}
-
-	if itemStats == (ItemStats{}) {
-		err = errors.New("No item stats found for given item ID")
 	}
 
 	return itemStats, err
