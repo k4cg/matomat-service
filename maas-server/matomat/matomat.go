@@ -183,21 +183,22 @@ func (m *Matomat) ItemCreate(name string, cost int32) (items.Item, error) {
 }
 
 func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item, error) {
-	var item items.Item
+	var returnedItem items.Item
 	var err error
 	if cost >= 0 {
 		item, err := m.itemRepo.Get(itemID)
-		if err == nil {
+		if err == nil && item != (items.Item{}) {
 			item.Name = name
 			item.Cost = uint32(cost) //TODO those "blind" uint32 casts should probably be handled better...
 			item, err = m.itemRepo.Save(item)
+			returnedItem = item
 		} else {
 			err = errors.New(ERROR_UNKNOWN_ITEM)
 		}
 	} else {
 		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
-	return item, err
+	return returnedItem, err
 }
 
 func (m *Matomat) ItemsList() (map[uint32]items.Item, error) {

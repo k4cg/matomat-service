@@ -75,6 +75,9 @@ func (r *ItemRepoSqlite3) Save(item Item) (Item, error) {
 			stmt, err := r.db.Prepare("UPDATE items SET name=?, cost=? WHERE ID=?")
 			if err == nil {
 				_, err = stmt.Exec(item.Name, item.Cost, item.ID)
+				if err == nil {
+					returnedItem = item
+				}
 				stmt.Close()
 			}
 		}

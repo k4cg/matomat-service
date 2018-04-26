@@ -36,8 +36,7 @@ func extractItemEditData(r *http.Request) (uint32, string, int32, error) {
 
 	r.ParseForm()
 
-	itemIDRaw, err := formGetInt32(r, FORM_KEY_ID)
-	itemID := uint32(itemIDRaw) //TODO those "blind" uint32 casts should probably be handled better...
+	itemID, err := extractIDFromModelGet(r.URL.Path)
 	itemName, err := formGet(r, FORM_KEY_NAME)
 	itemCost, err := formGetInt32(r, FORM_KEY_COST)
 
