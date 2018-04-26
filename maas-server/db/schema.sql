@@ -1,6 +1,6 @@
 CREATE TABLE `consumption_log` (
-	`userId` INTEGER PRIMARY KEY,
-	`itemId` INTEGER NOT NULL,
+	`userID` INTEGER PRIMARY KEY,
+	`itemID` INTEGER NOT NULL,
 	`amount` INTEGER NOT NULL,
 	`cost` INTEGER NOT NULL,
 	`timestamp` INTEGER NOT NULL

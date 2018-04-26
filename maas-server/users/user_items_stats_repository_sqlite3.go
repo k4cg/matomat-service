@@ -24,7 +24,7 @@ func (r *UserItemsStatsRepoSqlite3) Get(userID uint32) (map[uint32]items.ItemSta
 	itemsStats := make(map[uint32]items.ItemStats)
 	var err error
 
-	rows, err := r.db.Query("SELECT itemID, consumed FROM user_items_stats WHERE userID=?")
+	rows, err := r.db.Query("SELECT itemID, consumed FROM user_items_stats WHERE userID=?", userID)
 	if err == nil {
 		for rows.Next() {
 			var itemid uint32
