@@ -91,6 +91,7 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 						user.Credits = remainingCredits
 						m.userRepo.Save(user)
 						m.itemStatsRepo.CountConsumption(item.ID, 1)
+						m.userItemsStatsRepo.CountConsumption(userID, item.ID, 1)
 						m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
 						itemStats, err := m.itemStatsRepo.Get(itemID)
 						if err == nil {
