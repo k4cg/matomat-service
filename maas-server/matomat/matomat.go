@@ -115,7 +115,7 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 	var transferredAmount uint32
 	var oldFromCredits uint32
 	var err error
-	var fromUser users.User
+	var senderToReturn users.User
 
 	if amountToTransfer >= 0 {
 		amount := uint32(amountToTransfer) //TODO those "blind" uint32 casts should probably be handled better...
@@ -126,19 +126,21 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 				if err == nil {
 					if toUser != (users.User{}) {
 						if fromUser.Credits >= amount {
-							//yes this is not "transaction save" ... feel free to improve :-P
+							//yes this is not "transaction save" ... feel free to improve :-P ... e.g. move to a separate repo call
 							fromUser.Credits = fromUser.Credits - amount
 							toUser.Credits = toUser.Credits + amount
-							toUser, err = m.userRepo.Save(fromUser)
-							if err != nil {
-								_, err = m.userRepo.Save(toUser)
+							fromUser, err = m.userRepo.Save(fromUser)
+							if err == nil {
+								toUser, err = m.userRepo.Save(toUser)
 								if err != nil {
+									//"ROLLBACK"
 									fromUser.Credits = oldFromCredits
 									fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
 								} else {
 									transferredAmount = amount
 								}
 							}
+							senderToReturn = fromUser
 						} else {
 							err = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
 						}
@@ -157,8 +159,7 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 	} else {
 		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
-
-	return fromUser, transferredAmount, err
+	return senderToReturn, transferredAmount, err
 }
 
 func (m *Matomat) ItemGet(itemID uint32) (items.Item, error) {
