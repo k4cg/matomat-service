@@ -76,21 +76,25 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 
 	item, err := m.itemRepo.Get(itemID)
 	if err == nil {
-		user, err := m.userRepo.Get(userID)
-		if err == nil {
-			if user.Credits >= item.Cost {
-				remainingCredits = user.Credits - item.Cost
-				user.Credits = remainingCredits
-				m.userRepo.Save(user)
-				m.itemStatsRepo.CountConsumption(item.ID, 1)
-				m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
-				itemStats, err := m.itemStatsRepo.Get(itemID)
-				if err == nil {
-					itemStatsToReturn = itemStats
-				}
+		if item == (items.Item{}) {
+			err = errors.New(ERROR_UNKNOWN_ITEM)
+		} else {
+			user, err := m.userRepo.Get(userID)
+			if err == nil {
+				if user.Credits >= item.Cost {
+					remainingCredits = user.Credits - item.Cost
+					user.Credits = remainingCredits
+					m.userRepo.Save(user)
+					m.itemStatsRepo.CountConsumption(item.ID, 1)
+					m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
+					itemStats, err := m.itemStatsRepo.Get(itemID)
+					if err == nil {
+						itemStatsToReturn = itemStats
+					}
 
-			} else {
-				err = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+				} else {
+					err = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+				}
 			}
 		}
 	}
@@ -189,9 +193,11 @@ func (m *Matomat) ItemGetStats(itemID uint32) (items.Item, items.ItemStats, erro
 
 	item, err = m.itemRepo.Get(itemID)
 	if err == nil {
-		itemStats, err = m.itemStatsRepo.Get(itemID)
-	} else {
-		err = errors.New(ERROR_UNKNOWN_ITEM)
+		if item == (items.Item{}) {
+			err = errors.New(ERROR_UNKNOWN_ITEM)
+		} else {
+			itemStats, err = m.itemStatsRepo.Get(itemID)
+		}
 	}
 
 	return item, itemStats, err
