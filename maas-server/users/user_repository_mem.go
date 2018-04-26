@@ -1,9 +1,5 @@
 package users
 
-import (
-	"errors"
-)
-
 type UserRepoMem struct {
 	autoIncrement uint32
 	users         map[uint32]User
@@ -16,9 +12,10 @@ func NewUserRepoMem() *UserRepoMem {
 
 func (r *UserRepoMem) Get(id uint32) (User, error) {
 	var err error
-	user, found := r.users[id]
-	if !found {
-		err = errors.New(ERROR_UNKOWN_USER)
+	var user User
+	foundUser, found := r.users[id]
+	if found {
+		user = foundUser
 	}
 	return user, err
 }
@@ -32,9 +29,7 @@ func (r *UserRepoMem) GetByUsername(username string) (User, error) {
 			break
 		}
 	}
-	if user == (User{}) {
-		err = errors.New(ERROR_UNKOWN_USER)
-	}
+
 	return user, err
 }
 

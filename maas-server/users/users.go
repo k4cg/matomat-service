@@ -57,23 +57,7 @@ func (ua *Users) CreateUser(username string, password string, passwordRepeat str
 func (ua *Users) SetPassword(userId uint32, newPassword string, newPasswordRepeat string) (User, error) {
 	user, err := ua.userRepo.Get(userId)
 	if err == nil {
-		if newPassword == newPasswordRepeat {
-			hashedPassword, err := ua.hashPassword(newPassword)
-			if err == nil {
-				user.Password = hashedPassword
-				user, err = ua.userRepo.Save(user)
-			}
-		} else {
-			err = errors.New(ERROR_PASSWORDS_DO_NOT_MATCH)
-		}
-	}
-	return user, err
-}
-
-func (ua *Users) ChangePassword(userId uint32, oldPassword string, newPassword string, newPasswordRepeat string) (User, error) {
-	user, err := ua.userRepo.Get(userId)
-	if err == nil {
-		if ua.checkPasswordHash(oldPassword, user.Password) {
+		if user != (User{}) {
 			if newPassword == newPasswordRepeat {
 				hashedPassword, err := ua.hashPassword(newPassword)
 				if err == nil {
@@ -84,7 +68,31 @@ func (ua *Users) ChangePassword(userId uint32, oldPassword string, newPassword s
 				err = errors.New(ERROR_PASSWORDS_DO_NOT_MATCH)
 			}
 		} else {
-			err = errors.New(ERROR_CHANGE_PASSWORD_UNKNOWN_USERNAME)
+			err = errors.New(ERROR_UNKOWN_USER)
+		}
+	}
+	return user, err
+}
+
+func (ua *Users) ChangePassword(userId uint32, oldPassword string, newPassword string, newPasswordRepeat string) (User, error) {
+	user, err := ua.userRepo.Get(userId)
+	if err == nil {
+		if user != (User{}) {
+			if ua.checkPasswordHash(oldPassword, user.Password) {
+				if newPassword == newPasswordRepeat {
+					hashedPassword, err := ua.hashPassword(newPassword)
+					if err == nil {
+						user.Password = hashedPassword
+						user, err = ua.userRepo.Save(user)
+					}
+				} else {
+					err = errors.New(ERROR_PASSWORDS_DO_NOT_MATCH)
+				}
+			} else {
+				err = errors.New(ERROR_CHANGE_PASSWORD_UNKNOWN_USERNAME)
+			}
+		} else {
+			err = errors.New(ERROR_UNKOWN_USER)
 		}
 	}
 	return user, err
@@ -94,10 +102,14 @@ func (ua *Users) IsPasswordValid(username string, password string) (User, error)
 	var validUser User
 	userAuth, err := ua.userRepo.GetByUsername(username)
 	if err == nil {
-		if ua.checkPasswordHash(password, userAuth.Password) {
-			validUser = userAuth
+		if userAuth != (User{}) {
+			if ua.checkPasswordHash(password, userAuth.Password) {
+				validUser = userAuth
+			} else {
+				err = errors.New(ERROR_INVALID_USERNAME_OR_PASSWORD)
+			}
 		} else {
-			err = errors.New(ERROR_INVALID_USERNAME_OR_PASSWORD)
+			err = errors.New(ERROR_UNKOWN_USER)
 		}
 	}
 	return validUser, err

@@ -1,9 +1,5 @@
 package items
 
-import (
-	"errors"
-)
-
 type ItemRepoMem struct {
 	autoIncrement uint32
 	items         map[uint32]Item
@@ -16,9 +12,10 @@ func NewItemRepoMem() *ItemRepoMem {
 
 func (r *ItemRepoMem) Get(id uint32) (Item, error) {
 	var err error
-	item, found := r.items[id]
-	if !found {
-		err = errors.New("No item found with given item ID")
+	var item Item
+	itemFound, found := r.items[id]
+	if found {
+		item = itemFound
 	}
 	return item, err
 }

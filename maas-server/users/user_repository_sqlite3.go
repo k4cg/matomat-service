@@ -2,7 +2,6 @@ package users
 
 import (
 	"database/sql"
-	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -47,10 +46,6 @@ func (r *UserRepoSqlite3) GetByUsername(username string) (User, error) {
 			break
 		}
 		rows.Close()
-	}
-
-	if user == (User{}) {
-		err = errors.New(ERROR_UNKOWN_USER)
 	}
 
 	return user, err
