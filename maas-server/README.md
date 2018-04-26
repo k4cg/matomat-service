@@ -7,6 +7,7 @@ Work in progress, feel free to contribute.
 - Implement service stats
 
 ## Installation
+0. Pull all go dependencies using `go get ./...`
 1. Create a sqlite3 db at the desired location using `sqlite3 matomat.db < schema.sql; sqlite3 matomat.db < initial_data.sql`
 2. Create SSL certificate data (public and private cert parts)
 3. Create a `config.yml` from `config.yml.template` and fill will real values
