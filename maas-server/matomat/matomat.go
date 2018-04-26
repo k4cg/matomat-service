@@ -78,6 +78,7 @@ func (m *Matomat) IsAllowed(userID uint32, action string) bool {
 func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.ItemStats, error) {
 	var remainingCredits uint32
 	var itemStatsToReturn items.ItemStats
+	var retErr error
 
 	item, err := m.itemRepo.Get(itemID)
 	if err == nil {
@@ -94,27 +95,32 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 						itemStats, err := m.itemStatsRepo.Get(itemID)
 						if err == nil {
 							itemStatsToReturn = itemStats
+						} else {
+							retErr = err
 						}
-
 					} else {
-						err = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+						retErr = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
 					}
 				} else {
-					err = errors.New(ERROR_UNKNOWN_USER)
+					retErr = errors.New(ERROR_UNKNOWN_USER)
 				}
+			} else {
+				retErr = err
 			}
 		} else {
-			err = errors.New(ERROR_UNKNOWN_ITEM)
+			retErr = errors.New(ERROR_UNKNOWN_ITEM)
 		}
+	} else {
+		retErr = err
 	}
 
-	return item, itemStatsToReturn, err
+	return item, itemStatsToReturn, retErr
 }
 
 func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTransfer int32) (users.User, uint32, error) {
 	var transferredAmount uint32
 	var oldFromCredits uint32
-	var err error
+	var retErr error
 	var senderToReturn users.User
 
 	if amountToTransfer >= 0 {
@@ -136,30 +142,33 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 									//"ROLLBACK"
 									fromUser.Credits = oldFromCredits
 									fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
+									retErr = err
 								} else {
 									transferredAmount = amount
 								}
+							} else {
+								retErr = err
 							}
 							senderToReturn = fromUser
 						} else {
-							err = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
+							retErr = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
 						}
 					} else {
-						err = errors.New(ERROR_UNKNOWN_USER_TO)
+						retErr = errors.New(ERROR_UNKNOWN_USER_TO)
 					}
 				} else {
-					err = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER)
+					retErr = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER)
 				}
 			} else {
-				err = errors.New(ERROR_UNKNOWN_USER_FROM)
+				retErr = errors.New(ERROR_UNKNOWN_USER_FROM)
 			}
 		} else {
-			err = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_SENDER)
+			retErr = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_SENDER)
 		}
 	} else {
-		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
-	return senderToReturn, transferredAmount, err
+	return senderToReturn, transferredAmount, retErr
 }
 
 func (m *Matomat) ItemGet(itemID uint32) (items.Item, error) {
@@ -171,20 +180,22 @@ func (m *Matomat) ItemDelete(itemID uint32) (items.Item, error) {
 }
 
 func (m *Matomat) ItemCreate(name string, cost int32) (items.Item, error) {
-	var item items.Item
-	var err error
+	var retItem items.Item
+	var retErr error
 	if cost >= 0 {
-		item = items.Item{Name: name, Cost: uint32(cost)} //TODO those "blind" uint32 casts should probably be handled better...
-		item, err = m.itemRepo.Save(item)
+		item := items.Item{Name: name, Cost: uint32(cost)} //TODO those "blind" uint32 casts should probably be handled better...
+		item, err := m.itemRepo.Save(item)
+		retItem = item
+		retErr = err
 	} else {
-		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
-	return item, err
+	return retItem, retErr
 }
 
 func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item, error) {
 	var returnedItem items.Item
-	var err error
+	var retErr error
 	if cost >= 0 {
 		item, err := m.itemRepo.Get(itemID)
 		if err == nil && item != (items.Item{}) {
@@ -192,13 +203,14 @@ func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item
 			item.Cost = uint32(cost) //TODO those "blind" uint32 casts should probably be handled better...
 			item, err = m.itemRepo.Save(item)
 			returnedItem = item
+			retErr = err
 		} else {
-			err = errors.New(ERROR_UNKNOWN_ITEM)
+			retErr = errors.New(ERROR_UNKNOWN_ITEM)
 		}
 	} else {
-		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
-	return returnedItem, err
+	return returnedItem, retErr
 }
 
 func (m *Matomat) ItemsList() (map[uint32]items.Item, error) {
@@ -208,18 +220,21 @@ func (m *Matomat) ItemsList() (map[uint32]items.Item, error) {
 func (m *Matomat) ItemGetStats(itemID uint32) (items.Item, items.ItemStats, error) {
 	var item items.Item
 	var itemStats items.ItemStats
-	var err error
+	var retErr error
 
-	item, err = m.itemRepo.Get(itemID)
+	item, err := m.itemRepo.Get(itemID)
 	if err == nil {
 		if item != (items.Item{}) {
 			itemStats, err = m.itemStatsRepo.Get(itemID)
+			retErr = err
 		} else {
-			err = errors.New(ERROR_UNKNOWN_ITEM)
+			retErr = errors.New(ERROR_UNKNOWN_ITEM)
 		}
+	} else {
+		retErr = err
 	}
 
-	return item, itemStats, err
+	return item, itemStats, retErr
 }
 
 func (m *Matomat) ItemStatsList() (map[uint32]items.ItemStats, error) {
@@ -227,6 +242,7 @@ func (m *Matomat) ItemStatsList() (map[uint32]items.ItemStats, error) {
 }
 
 func (m *Matomat) UserCreditsAdd(userID uint32, credits int32) (users.User, error) {
+	var retErr error
 	user, err := m.userRepo.Get(userID)
 
 	if err == nil {
@@ -234,18 +250,20 @@ func (m *Matomat) UserCreditsAdd(userID uint32, credits int32) (users.User, erro
 			if credits >= 0 {
 				user.Credits = user.Credits + uint32(credits) //TODO those "blind" uint32 casts should probably be handled better...
 				user, err = m.userRepo.Save(user)
+				retErr = err
 			} else {
-				err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+				retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 			}
 		} else {
-			err = errors.New(ERROR_UNKNOWN_USER)
+			retErr = errors.New(ERROR_UNKNOWN_USER)
 		}
 	}
 
-	return user, err
+	return user, retErr
 }
 
 func (m *Matomat) UserCreditsWithdraw(userID uint32, credits int32) (users.User, error) {
+	var retErr error
 	user, err := m.userRepo.Get(userID)
 
 	if err == nil {
@@ -255,18 +273,21 @@ func (m *Matomat) UserCreditsWithdraw(userID uint32, credits int32) (users.User,
 				if user.Credits >= withdrawAmount {
 					user.Credits = user.Credits - uint32(credits)
 					user, err = m.userRepo.Save(user)
+					retErr = err
 				} else {
-					err = errors.New(ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS)
+					retErr = errors.New(ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS)
 				}
 			} else {
-				err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+				retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 			}
 		} else {
-			err = errors.New(ERROR_UNKNOWN_USER)
+			retErr = errors.New(ERROR_UNKNOWN_USER)
 		}
+	} else {
+		retErr = err
 	}
 
-	return user, err
+	return user, retErr
 }
 
 func (m *Matomat) UsersUseridStatsGet(userID uint32) (map[uint32]items.ItemStats, error) {
