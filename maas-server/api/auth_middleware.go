@@ -2,8 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/context"
 	"github.com/k4cg/matomat-service/maas-server/auth"
@@ -27,9 +27,7 @@ func AuthenticationMiddleware(auth auth.AuthInterface, next http.HandlerFunc) ht
 				w.Write(response)
 				return
 			} else {
-				userIDString := strconv.Itoa(int(authTokenClaims.ID))
-				//TODO THIS IS ALL WONKY! reimplement properly ?? perhaps store the object in there?
-				context.Set(req, CONTEXT_AUTHTOKENCLAIMS_USERID_KEY, []byte(userIDString))
+				context.Set(req, CONTEXT_AUTHTOKENCLAIMS_USERID_KEY, authTokenClaims.ID)
 				next.ServeHTTP(w, req)
 			}
 		} else {
@@ -42,17 +40,17 @@ func AuthenticationMiddleware(auth auth.AuthInterface, next http.HandlerFunc) ht
 	})
 }
 
-func getUserIDFromContext(req *http.Request) uint32 {
+func getUserIDFromContext(req *http.Request) (uint32, error) {
 	var userID uint32
-	//TODO THIS IS ALL WONKY! reimplement properly ?? perhaps store the object in there?
+	var err error
+
 	raw := context.Get(req, CONTEXT_AUTHTOKENCLAIMS_USERID_KEY)
-	userIDString, ok := raw.(string)
+	rawInt, ok := raw.(uint32)
 	if ok {
-		userIDInt, err := strconv.Atoi(userIDString)
-		if err != nil {
-			userID = uint32(userIDInt)
-		}
+		userID = rawInt
+	} else {
+		err = errors.New("Could not get user ID from context")
 	}
 
-	return userID
+	return userID, err
 }

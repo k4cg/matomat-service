@@ -74,18 +74,23 @@ func extractUserCreditsChangeData(r *http.Request) (int32, error) {
 func (uah *UsersApiHandler) UsersGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_GET) {
-		users, err := uah.users.ListUsers()
-		if err == nil {
-			apiUsers := make(map[uint32]User)
-			for k, v := range users {
-				apiUsers[k] = newUser(v)
+	if err == nil {
+		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_GET) {
+			users, err := uah.users.ListUsers()
+			if err == nil {
+				apiUsers := make(map[uint32]User)
+				for k, v := range users {
+					apiUsers[k] = newUser(v)
+				}
+				status, response = getResponse(http.StatusOK, apiUsers)
+			} else {
+				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 			}
-			status, response = getResponse(http.StatusOK, apiUsers)
-		} else {
-			status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -95,19 +100,24 @@ func (uah *UsersApiHandler) UsersGet(w http.ResponseWriter, r *http.Request) {
 func (uah *UsersApiHandler) UsersUseridGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_GET) {
-		userID, err := extractIDFromModelGet(r.URL.Path)
-		if err == nil {
-			user, err := uah.users.GetUser(userID)
+	if err == nil {
+		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_GET) {
+			userID, err := extractIDFromModelGet(r.URL.Path)
 			if err == nil {
-				status, response = getResponse(http.StatusOK, newUser(user))
+				user, err := uah.users.GetUser(userID)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newUser(user))
+				} else {
+					status, response = getErrorResponse(http.StatusNotFound, err.Error())
+				}
 			} else {
-				status, response = getErrorResponse(http.StatusNotFound, err.Error())
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -117,19 +127,24 @@ func (uah *UsersApiHandler) UsersUseridGet(w http.ResponseWriter, r *http.Reques
 func (uah *UsersApiHandler) UsersPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_CREATE) {
-		name, password, passwordRepeat, err := extractUserCreateData(r)
-		if err == nil {
-			user, err := uah.users.CreateUser(name, password, passwordRepeat)
+	if err == nil {
+		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_CREATE) {
+			name, password, passwordRepeat, err := extractUserCreateData(r)
 			if err == nil {
-				status, response = getResponse(http.StatusCreated, newUser(user))
+				user, err := uah.users.CreateUser(name, password, passwordRepeat)
+				if err == nil {
+					status, response = getResponse(http.StatusCreated, newUser(user))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
 			} else {
-				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -139,19 +154,24 @@ func (uah *UsersApiHandler) UsersPost(w http.ResponseWriter, r *http.Request) {
 func (uah *UsersApiHandler) UsersUseridDelete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_DELETE) {
-		userID, err := extractIDFromModelGet(r.URL.Path)
-		if err == nil {
-			user, err := uah.users.DeleteUser(userID)
+	if err == nil {
+		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_DELETE) {
+			userID, err := extractIDFromModelGet(r.URL.Path)
 			if err == nil {
-				status, response = getResponse(http.StatusOK, newUser(user))
+				user, err := uah.users.DeleteUser(userID)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newUser(user))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
 			} else {
-				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -161,22 +181,25 @@ func (uah *UsersApiHandler) UsersUseridDelete(w http.ResponseWriter, r *http.Req
 func (uah *UsersApiHandler) UsersUseridCreditsAddPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	userID, err := extractIDFromModelGet(r.URL.Path)
-	loggedInUserID := getUserIDFromContext(r)
-
-	if uah.matomat.IsAllowed(loggedInUserID, matomat.ACTION_USERS_USERID_CREDITS_ADD) && err == nil && loggedInUserID == userID {
-		credits, err := extractUserCreditsChangeData(r)
-		if err == nil {
-			user, err := uah.matomat.UserCreditsAdd(userID, credits)
+	if err == nil {
+		userID, err := extractIDFromModelGet(r.URL.Path)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_ADD) && loginUserID == userID {
+			credits, err := extractUserCreditsChangeData(r)
 			if err == nil {
-				status, response = getResponse(http.StatusOK, newUser(user))
+				user, err := uah.matomat.UserCreditsAdd(userID, credits)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newUser(user))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
 			} else {
-				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -186,22 +209,25 @@ func (uah *UsersApiHandler) UsersUseridCreditsAddPut(w http.ResponseWriter, r *h
 func (uah *UsersApiHandler) UsersUseridCreditsWithdrawPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	userID, err := extractIDFromModelGet(r.URL.Path)
-	loggedInUserID := getUserIDFromContext(r)
-
-	if uah.matomat.IsAllowed(loggedInUserID, matomat.ACTION_USERS_USERID_CREDITS_WITHDRAW) && err == nil && loggedInUserID == userID {
-		credits, err := extractUserCreditsChangeData(r)
-		if err == nil {
-			user, err := uah.matomat.UserCreditsWithdraw(userID, credits)
+	if err == nil {
+		userID, err := extractIDFromModelGet(r.URL.Path)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_WITHDRAW) && loginUserID == userID {
+			credits, err := extractUserCreditsChangeData(r)
 			if err == nil {
-				status, response = getResponse(http.StatusOK, newUser(user))
+				user, err := uah.matomat.UserCreditsWithdraw(userID, credits)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newUser(user))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
 			} else {
-				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -211,28 +237,32 @@ func (uah *UsersApiHandler) UsersUseridCreditsWithdrawPut(w http.ResponseWriter,
 func (uah *UsersApiHandler) UsersUseridStatsGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	userID, err := extractIDFromModelGet(r.URL.Path)
-
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_STATS_GET) && err == nil && userID != 0 {
-		items, err := uah.matomat.ItemsList()
-		if err == nil {
-			itemStatsList, err := uah.matomat.UsersUseridStatsGet(userID)
+	if err == nil {
+		userID, err := extractIDFromModelGet(r.URL.Path)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_STATS_GET) && userID != 0 {
+			items, err := uah.matomat.ItemsList()
 			if err == nil {
-				apiItemStats := make(map[uint32]ItemStats)
-				for k, v := range items {
-					itemStats, found := itemStatsList[k]
-					if found {
-						apiItemStats[k] = newItemStats(v, itemStats)
+				itemStatsList, err := uah.matomat.UsersUseridStatsGet(userID)
+				if err == nil {
+					apiItemStats := make(map[uint32]ItemStats)
+					for k, v := range items {
+						itemStats, found := itemStatsList[k]
+						if found {
+							apiItemStats[k] = newItemStats(v, itemStats)
+						}
 					}
+					status, response = getResponse(http.StatusOK, apiItemStats)
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 				}
-				status, response = getResponse(http.StatusOK, apiItemStats)
 			} else {
 				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -242,22 +272,25 @@ func (uah *UsersApiHandler) UsersUseridStatsGet(w http.ResponseWriter, r *http.R
 func (uah *UsersApiHandler) UsersUseridCreditsTransferPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
 
-	userID, err := extractIDFromModelGet(r.URL.Path)
-	loggedInUserID := getUserIDFromContext(r)
-
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_CREDITS_TRANSFER) && err == nil && userID != 0 {
-		credits, err := extractUserCreditsChangeData(r)
-		if err == nil {
-			fromUser, transferredCredits, err := uah.matomat.CreditsTransfer(loggedInUserID, userID, credits)
+	if err == nil {
+		userID, err := extractIDFromModelGet(r.URL.Path)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_TRANSFER) && userID != 0 {
+			credits, err := extractUserCreditsChangeData(r)
 			if err == nil {
-				status, response = getResponse(http.StatusOK, newTransferredCredits(fromUser, transferredCredits))
+				fromUser, transferredCredits, err := uah.matomat.CreditsTransfer(loginUserID, userID, credits)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newTransferredCredits(fromUser, transferredCredits))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
 			} else {
-				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -267,12 +300,17 @@ func (uah *UsersApiHandler) UsersUseridCreditsTransferPut(w http.ResponseWriter,
 func (uah *UsersApiHandler) UsersPasswordPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := http.StatusUnauthorized, []byte(ERROR_UNAUTHORIZED)
+	loginUserID, err := getUserIDFromContext(r)
 
-	oldPassword, newPassword, newPasswordRepeat, err := extractPasswordChangeData(r)
-	if err == nil && uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_OWN_PASSWORD_CHANGE) {
-		uah.users.ChangePassword(getUserIDFromContext(r), oldPassword, newPassword, newPasswordRepeat)
+	if err == nil {
+		oldPassword, newPassword, newPasswordRepeat, err := extractPasswordChangeData(r)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_OWN_PASSWORD_CHANGE) {
+			uah.users.ChangePassword(loginUserID, oldPassword, newPassword, newPasswordRepeat)
+		} else {
+			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+		}
 	} else {
-		status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
@@ -282,21 +320,26 @@ func (uah *UsersApiHandler) UsersPasswordPut(w http.ResponseWriter, r *http.Requ
 func (uah *UsersApiHandler) UsersUseridPasswordPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := http.StatusUnauthorized, []byte(ERROR_UNAUTHORIZED)
+	loginUserID, err := getUserIDFromContext(r)
 
 	//explicitly NOT allow to set own users password using this method, to not have a way to sneak around changing the
 	//"own" password without known the old one
-	if uah.matomat.IsAllowed(getUserIDFromContext(r), matomat.ACTION_USERS_USERID_PASSWORD_CHANGE) {
-		userID, err := extractIDFromModelGet(r.URL.Path)
-		if err == nil {
-			newPassword, newPasswordRepeat, err := extractPasswordChangeUseridData(r)
+	if err == nil {
+		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_PASSWORD_CHANGE) {
+			userID, err := extractIDFromModelGet(r.URL.Path)
 			if err == nil {
-				uah.users.SetPassword(userID, newPassword, newPasswordRepeat)
+				newPassword, newPasswordRepeat, err := extractPasswordChangeUseridData(r)
+				if err == nil {
+					uah.users.SetPassword(userID, newPassword, newPasswordRepeat)
+				} else {
+					status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+				}
 			} else {
 				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 			}
-		} else {
-			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	w.WriteHeader(status)
