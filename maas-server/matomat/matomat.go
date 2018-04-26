@@ -43,6 +43,9 @@ const ERROR_TRANSFER_UNKOWN_CREDITS_SENDER string = "User to transfer credits fr
 const ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS string = "Not enough credits. Cannot withdraw more credits than the current balance"
 const ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED string = "Only credit amounts greater or equal to zero allowed"
 const ERROR_UNKNOWN_ITEM string = "Unkown item"
+const ERROR_UNKNOWN_USER string = "Unkown user"
+const ERROR_UNKNOWN_USER_FROM string = "Unkown receiving user"
+const ERROR_UNKNOWN_USER_TO string = "Unkown receiving user"
 
 func NewMatomat(eventDispatcher EventDispatcherInterface, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
 	return &Matomat{eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo, userItemsStatsRepo: userItemsStatsRepo}
@@ -61,7 +64,9 @@ func (m *Matomat) IsAllowed(userID uint32, action string) bool {
 	if requiresAdmin {
 		user, err := m.userRepo.Get(userID)
 		if err == nil {
-			allowed = user.IsAdmin()
+			if user != (users.User{}) {
+				allowed = user.IsAdmin()
+			}
 		} //if user is not found (or any error occurs) => access is forbidden
 	} else {
 		allowed = true
@@ -76,26 +81,30 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 
 	item, err := m.itemRepo.Get(itemID)
 	if err == nil {
-		if item == (items.Item{}) {
-			err = errors.New(ERROR_UNKNOWN_ITEM)
-		} else {
+		if item != (items.Item{}) {
 			user, err := m.userRepo.Get(userID)
 			if err == nil {
-				if user.Credits >= item.Cost {
-					remainingCredits = user.Credits - item.Cost
-					user.Credits = remainingCredits
-					m.userRepo.Save(user)
-					m.itemStatsRepo.CountConsumption(item.ID, 1)
-					m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
-					itemStats, err := m.itemStatsRepo.Get(itemID)
-					if err == nil {
-						itemStatsToReturn = itemStats
-					}
+				if user != (users.User{}) {
+					if user.Credits >= item.Cost {
+						remainingCredits = user.Credits - item.Cost
+						user.Credits = remainingCredits
+						m.userRepo.Save(user)
+						m.itemStatsRepo.CountConsumption(item.ID, 1)
+						m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
+						itemStats, err := m.itemStatsRepo.Get(itemID)
+						if err == nil {
+							itemStatsToReturn = itemStats
+						}
 
+					} else {
+						err = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+					}
 				} else {
-					err = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+					err = errors.New(ERROR_UNKNOWN_USER)
 				}
 			}
+		} else {
+			err = errors.New(ERROR_UNKNOWN_ITEM)
 		}
 	}
 
@@ -112,27 +121,35 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 		amount := uint32(amountToTransfer) //TODO those "blind" uint32 casts should probably be handled better...
 		fromUser, err := m.userRepo.Get(fromUserID)
 		if err == nil {
-			toUser, err := m.userRepo.Get(toUserID)
-			if err == nil {
-				if fromUser.Credits >= amount {
-					//yes this is not "transaction save" ... feel free to improve :-P
-					fromUser.Credits = fromUser.Credits - amount
-					toUser.Credits = toUser.Credits + amount
-					toUser, err = m.userRepo.Save(fromUser)
-					if err != nil {
-						_, err = m.userRepo.Save(toUser)
-						if err != nil {
-							fromUser.Credits = oldFromCredits
-							fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
+			if fromUser != (users.User{}) {
+				toUser, err := m.userRepo.Get(toUserID)
+				if err == nil {
+					if toUser != (users.User{}) {
+						if fromUser.Credits >= amount {
+							//yes this is not "transaction save" ... feel free to improve :-P
+							fromUser.Credits = fromUser.Credits - amount
+							toUser.Credits = toUser.Credits + amount
+							toUser, err = m.userRepo.Save(fromUser)
+							if err != nil {
+								_, err = m.userRepo.Save(toUser)
+								if err != nil {
+									fromUser.Credits = oldFromCredits
+									fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
+								} else {
+									transferredAmount = amount
+								}
+							}
 						} else {
-							transferredAmount = amount
+							err = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
 						}
+					} else {
+						err = errors.New(ERROR_UNKNOWN_USER_TO)
 					}
 				} else {
-					err = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
+					err = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER)
 				}
 			} else {
-				err = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER)
+				err = errors.New(ERROR_UNKNOWN_USER_FROM)
 			}
 		} else {
 			err = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_SENDER)
@@ -193,10 +210,10 @@ func (m *Matomat) ItemGetStats(itemID uint32) (items.Item, items.ItemStats, erro
 
 	item, err = m.itemRepo.Get(itemID)
 	if err == nil {
-		if item == (items.Item{}) {
-			err = errors.New(ERROR_UNKNOWN_ITEM)
-		} else {
+		if item != (items.Item{}) {
 			itemStats, err = m.itemStatsRepo.Get(itemID)
+		} else {
+			err = errors.New(ERROR_UNKNOWN_ITEM)
 		}
 	}
 
@@ -209,28 +226,44 @@ func (m *Matomat) ItemStatsList() (map[uint32]items.ItemStats, error) {
 
 func (m *Matomat) UserCreditsAdd(userID uint32, credits int32) (users.User, error) {
 	user, err := m.userRepo.Get(userID)
-	if credits >= 0 {
-		user.Credits = user.Credits + uint32(credits) //TODO those "blind" uint32 casts should probably be handled better...
-		user, err = m.userRepo.Save(user)
-	} else {
-		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+
+	if err == nil {
+		if user != (users.User{}) {
+			if credits >= 0 {
+				user.Credits = user.Credits + uint32(credits) //TODO those "blind" uint32 casts should probably be handled better...
+				user, err = m.userRepo.Save(user)
+			} else {
+				err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+			}
+		} else {
+			err = errors.New(ERROR_UNKNOWN_USER)
+		}
 	}
+
 	return user, err
 }
 
 func (m *Matomat) UserCreditsWithdraw(userID uint32, credits int32) (users.User, error) {
 	user, err := m.userRepo.Get(userID)
-	if credits >= 0 {
-		withdrawAmount := uint32(credits) //TODO those "blind" uint32 casts should probably be handled better...
-		if user.Credits >= withdrawAmount {
-			user.Credits = user.Credits - uint32(credits)
-			user, err = m.userRepo.Save(user)
+
+	if err == nil {
+		if user != (users.User{}) {
+			if credits >= 0 {
+				withdrawAmount := uint32(credits) //TODO those "blind" uint32 casts should probably be handled better...
+				if user.Credits >= withdrawAmount {
+					user.Credits = user.Credits - uint32(credits)
+					user, err = m.userRepo.Save(user)
+				} else {
+					err = errors.New(ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS)
+				}
+			} else {
+				err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
+			}
 		} else {
-			err = errors.New(ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS)
+			err = errors.New(ERROR_UNKNOWN_USER)
 		}
-	} else {
-		err = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
+
 	return user, err
 }
 

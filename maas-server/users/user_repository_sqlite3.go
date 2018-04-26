@@ -33,10 +33,6 @@ func (r *UserRepoSqlite3) Get(userID uint32) (User, error) {
 		rows.Close()
 	}
 
-	if user == (User{}) {
-		err = errors.New(ERROR_UNKOWN_USER)
-	}
-
 	return user, err
 }
 
