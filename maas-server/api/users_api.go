@@ -44,7 +44,7 @@ func extractPasswordChangeData(r *http.Request) (string, string, string, error) 
 	r.ParseForm()
 
 	password, err := formGet(r, FORM_KEY_PASSWORD)
-	newPassword, err := formGet(r, FORM_KEY_PASSWORD)
+	newPassword, err := formGet(r, FORM_KEY_PASSWORD_NEW)
 	newPasswordRepeat, err := formGet(r, FORM_KEY_PASSWORD_REPEAT)
 
 	return password, newPassword, newPasswordRepeat, err
@@ -305,7 +305,12 @@ func (uah *UsersApiHandler) UsersPasswordPut(w http.ResponseWriter, r *http.Requ
 	if err == nil {
 		oldPassword, newPassword, newPasswordRepeat, err := extractPasswordChangeData(r)
 		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_OWN_PASSWORD_CHANGE) {
-			uah.users.ChangePassword(loginUserID, oldPassword, newPassword, newPasswordRepeat)
+			user, err := uah.users.ChangePassword(loginUserID, oldPassword, newPassword, newPasswordRepeat)
+			if err == nil {
+				status, response = getResponse(http.StatusOK, newUser(user))
+			} else {
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+			}
 		} else {
 			status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 		}
