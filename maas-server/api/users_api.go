@@ -55,7 +55,7 @@ func extractPasswordChangeUseridData(r *http.Request) (string, string, error) {
 
 	r.ParseForm()
 
-	newPassword, err := formGet(r, FORM_KEY_PASSWORD)
+	newPassword, err := formGet(r, FORM_KEY_PASSWORD_NEW)
 	newPasswordRepeat, err := formGet(r, FORM_KEY_PASSWORD_REPEAT)
 
 	return newPassword, newPasswordRepeat, err
@@ -335,7 +335,12 @@ func (uah *UsersApiHandler) UsersUseridPasswordPut(w http.ResponseWriter, r *htt
 			if err == nil {
 				newPassword, newPasswordRepeat, err := extractPasswordChangeUseridData(r)
 				if err == nil {
-					uah.users.SetPassword(userID, newPassword, newPasswordRepeat)
+					user, err := uah.users.SetPassword(userID, newPassword, newPasswordRepeat)
+					if err == nil {
+						status, response = getResponse(http.StatusOK, newUser(user))
+					} else {
+						status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+					}
 				} else {
 					status, response = getErrorResponse(http.StatusBadRequest, err.Error())
 				}
