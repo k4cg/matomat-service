@@ -30,6 +30,7 @@ func (r *UserRepoSqlite3) Get(userID uint32) (User, error) {
 			rows.Scan(&user.ID, &user.Username, &user.Password, &user.Credits, &user.admin)
 			break
 		}
+		rows.Close()
 	}
 
 	if user == (User{}) {
@@ -49,6 +50,7 @@ func (r *UserRepoSqlite3) GetByUsername(username string) (User, error) {
 			rows.Scan(&user.ID, &user.Username, &user.Password, &user.Credits, &user.admin)
 			break
 		}
+		rows.Close()
 	}
 
 	if user == (User{}) {
@@ -80,6 +82,7 @@ func (r *UserRepoSqlite3) List() (map[uint32]User, error) {
 
 			users[id] = User{ID: id, Username: username, Password: password, Credits: credits, admin: adminBool}
 		}
+		rows.Close()
 	}
 
 	return users, err
@@ -104,15 +107,20 @@ func (r *UserRepoSqlite3) Save(user User) (User, error) {
 					//evil cast of int64 => uint32 .... TODO solve this better
 					returnedUser = User{ID: uint32(id), Username: user.Username, Password: user.Password, Credits: user.Credits, admin: user.IsAdmin()}
 				}
+				stmt.Close()
 			}
 		} else {
-			stmt, err := r.db.Prepare("UPDATE items SET name=?, cost=? WHERE ID=?")
+			stmt, err := r.db.Prepare("UPDATE users SET username=?, password=?, credits=?, admin=? WHERE ID=?")
 			if err == nil {
 				adminInt := 0
 				if user.IsAdmin() {
 					adminInt = 1
 				}
 				_, err = stmt.Exec(user.Username, user.Password, user.Credits, adminInt, user.ID)
+				if err == nil {
+					returnedUser = user
+				}
+				stmt.Close()
 			}
 		}
 	}
@@ -127,6 +135,7 @@ func (r *UserRepoSqlite3) Delete(userID uint32) (User, error) {
 		stmt, err := r.db.Prepare("DELETE FROM users WHERE ID=? LIMIT 1")
 		if err == nil {
 			_, err = stmt.Exec(user.ID)
+			stmt.Close()
 		}
 	}
 	return user, err

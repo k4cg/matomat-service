@@ -30,6 +30,7 @@ func (r *ItemRepoSqlite3) Get(itemID uint32) (Item, error) {
 			rows.Scan(&item.ID, &item.Name, &item.Cost)
 			break
 		}
+		rows.Close()
 	}
 
 	if item == (Item{}) {
@@ -52,6 +53,7 @@ func (r *ItemRepoSqlite3) List() (map[uint32]Item, error) {
 			rows.Scan(&id, &name, &cost)
 			items[id] = Item{ID: id, Name: name, Cost: cost}
 		}
+		rows.Close()
 	}
 
 	return items, err
@@ -72,11 +74,13 @@ func (r *ItemRepoSqlite3) Save(item Item) (Item, error) {
 					//evil cast of int64 => uint32 .... TODO solve this better
 					returnedItem = Item{ID: uint32(id), Name: item.Name, Cost: item.Cost}
 				}
+				stmt.Close()
 			}
 		} else {
 			stmt, err := r.db.Prepare("UPDATE items SET name=?, cost=? WHERE ID=?")
 			if err == nil {
 				_, err = stmt.Exec(item.Name, item.Cost, item.ID)
+				stmt.Close()
 			}
 		}
 	}
@@ -91,6 +95,7 @@ func (r *ItemRepoSqlite3) Delete(itemID uint32) (Item, error) {
 		stmt, err := r.db.Prepare("DELETE FROM items WHERE ID=? LIMIT 1")
 		if err == nil {
 			_, err = stmt.Exec(item.ID)
+			stmt.Close()
 		}
 	}
 	return item, err
