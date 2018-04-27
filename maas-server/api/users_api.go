@@ -236,6 +236,7 @@ func (uah *UsersApiHandler) UsersUseridCreditsWithdrawPut(w http.ResponseWriter,
 
 func (uah *UsersApiHandler) UsersUseridStatsGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
+	w.Header().Set("Cache-Control", "max-age=30") //allow caching by the client for 30 seconds
 	status, response := getErrorForbiddenResponse()
 	loginUserID, err := getUserIDFromContext(r)
 
