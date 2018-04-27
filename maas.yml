@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.2.0
+  version: 0.4.27
 servers:
   - url: https://maas.intern.k4cg.org/v0
     description: The production server
