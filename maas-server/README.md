@@ -6,6 +6,10 @@ Work in progress, feel free to contribute.
 - Properly set MQTT message format
 - Implement service stats
 
+## Prerequisites
+- golang version 1.7+
+- sqlite3
+
 ## Installation
 0. Pull all go dependencies using `go get ./...`
 1. Create a sqlite3 db at the desired location using `sqlite3 matomat.db < schema.sql; sqlite3 matomat.db < initial_data.sql`
