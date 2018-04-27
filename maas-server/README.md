@@ -4,8 +4,9 @@ Work in progress, feel free to contribute.
 
 ## Biggest TODOs
 - Properly set MQTT message format
-- Implement service stats
 - Properly (re) implement bearer token authentication in server and move back to bearer token auth in API spec
+
+(for not so big TODOs simply grep for TODO, the result will speak for itself ^^)
 
 ## Requirements
 - golang version 1.7+
