@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.4.27
+  version: 0.4.28
 servers:
   - url: https://maas.intern.k4cg.org/v0
     description: The production server
@@ -601,15 +601,7 @@ paths:
       tags:
       - users
       summary: Set password for currently logged in user.
-      description: Set password for currently logged in user. TODO must provide old and new password (twice) in order to be allowed to change it.
-      parameters:
-      - in: path
-        name: userId
-        schema:
-          type: integer
-          format: int32
-        required: true
-        description: The ID of the user do which the password should be changed
+      description: Set password for currently logged in user. Must provide old and new password (twice) in order to be allowed to change it.
       requestBody:
         description: The new password
         required: true

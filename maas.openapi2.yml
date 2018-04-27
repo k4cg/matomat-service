@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.2.0
+  version: 0.4.28
 host: localhost:8443
 basePath: /v0
 schemes:
@@ -475,17 +475,12 @@ paths:
       tags:
       - users
       summary: Set password for currently logged in user.
-      description: Set password for currently logged in user. TODO must provide old and new password (twice) in order to be allowed to change it.
+      description: Set password for currently logged in user. Must provide old and new password (twice) in order to be allowed to change it.
       consumes:
         - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
-        - in: path
-          name: userId
-          type: integer
-          required: true
-          description: The ID of the user do which the password should be changed
         - in: formData
           name: password
           type: string
