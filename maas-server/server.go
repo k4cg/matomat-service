@@ -5,12 +5,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -95,13 +93,14 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 
 func setupSignalHandling(cfg *config.Config) {
 	shutdownGraceperiodSeconds, _ := cfg.Int("general.shutdown_graceperiod_seconds")
+	//TODO / nice to have: after "stop" signals are received, block processing of any further requests to the server
 	var gracefulStop = make(chan os.Signal)
 	signal.Notify(gracefulStop, syscall.SIGTERM)
 	signal.Notify(gracefulStop, syscall.SIGINT)
 	go func() {
 		sig := <-gracefulStop
-		fmt.Printf("Caught SIG: %+v\n", sig)
-		fmt.Println("Wait for " + strconv.Itoa(shutdownGraceperiodSeconds) + " second to finish processing")
+		log.Printf("Caught SIG: %+v\n", sig)
+		log.Printf("Wait for %d second(s) to finish processing\n", shutdownGraceperiodSeconds)
 		time.Sleep(time.Duration(shutdownGraceperiodSeconds) * time.Second)
 		os.Exit(0)
 	}()
