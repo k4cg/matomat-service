@@ -1,6 +1,5 @@
 general:
-  enable_event_dispatching: false
-
+  shutdown_graceperiod_seconds: 2
 listen:
   addr: <ADDR TO LISTEN ON> 
   port: 8443
