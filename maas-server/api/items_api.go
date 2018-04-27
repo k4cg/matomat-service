@@ -52,9 +52,9 @@ func (iah *ItemsApiHandler) ItemsGet(w http.ResponseWriter, r *http.Request) {
 		if err == nil && iah.matomat.IsAllowed(loginUserID, matomat.ACTION_ITEMS_LIST) {
 			items, err := iah.matomat.ItemsList()
 			if err == nil {
-				apiItems := make(map[uint32]Item)
-				for k, v := range items {
-					apiItems[k] = newItem(v)
+				apiItems := make([]Item, 0)
+				for _, item := range items {
+					apiItems = append(apiItems, newItem(item))
 				}
 				status, response = getResponse(http.StatusOK, apiItems)
 			} else {
@@ -218,11 +218,11 @@ func (iah *ItemsApiHandler) ItemsStatsGet(w http.ResponseWriter, r *http.Request
 			if err == nil {
 				itemStatsList, err := iah.matomat.ItemStatsList()
 				if err == nil {
-					apiItemStats := make(map[uint32]ItemStats)
-					for k, v := range items {
-						itemStats, found := itemStatsList[k]
+					apiItemStats := make([]ItemStats, 0)
+					for _, item := range items {
+						itemStats, found := getStatsForItem(itemStatsList, item.ID)
 						if found {
-							apiItemStats[k] = newItemStats(v, itemStats)
+							apiItemStats = append(apiItemStats, newItemStats(item, itemStats))
 						}
 					}
 					status, response = getResponse(http.StatusOK, apiItemStats)

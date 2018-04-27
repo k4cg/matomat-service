@@ -51,8 +51,8 @@ func (r *UserRepoSqlite3) GetByUsername(username string) (User, error) {
 	return user, err
 }
 
-func (r *UserRepoSqlite3) List() (map[uint32]User, error) {
-	users := make(map[uint32]User)
+func (r *UserRepoSqlite3) List() ([]User, error) {
+	users := make([]User, 0)
 	var err error
 
 	rows, err := r.db.Query("SELECT ID, username, password, credits, admin FROM users")
@@ -71,7 +71,7 @@ func (r *UserRepoSqlite3) List() (map[uint32]User, error) {
 				adminBool = true
 			}
 
-			users[id] = User{ID: id, Username: username, Password: password, Credits: credits, admin: adminBool}
+			users = append(users, User{ID: id, Username: username, Password: password, Credits: credits, admin: adminBool})
 		}
 		rows.Close()
 	}

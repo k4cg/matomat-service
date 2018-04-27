@@ -64,8 +64,8 @@ func (r *ItemStatsRepoSqlite3) CountConsumption(itemID uint32, consumed uint32) 
 	return returnedItemStats, err
 }
 
-func (r *ItemStatsRepoSqlite3) List() (map[uint32]ItemStats, error) {
-	itemsStats := make(map[uint32]ItemStats)
+func (r *ItemStatsRepoSqlite3) List() ([]ItemStats, error) {
+	itemsStats := make([]ItemStats, 0)
 	var err error
 
 	rows, err := r.db.Query("SELECT itemID, consumed FROM items_stats")
@@ -76,7 +76,7 @@ func (r *ItemStatsRepoSqlite3) List() (map[uint32]ItemStats, error) {
 
 			rows.Scan(&id, &consumed)
 
-			itemsStats[id] = ItemStats{ItemID: id, Consumed: consumed}
+			itemsStats = append(itemsStats, ItemStats{ItemID: id, Consumed: consumed})
 		}
 		rows.Close()
 	}

@@ -80,9 +80,9 @@ func (uah *UsersApiHandler) UsersGet(w http.ResponseWriter, r *http.Request) {
 		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_GET) {
 			users, err := uah.users.ListUsers()
 			if err == nil {
-				apiUsers := make(map[uint32]User)
-				for k, v := range users {
-					apiUsers[k] = newUser(v)
+				apiUsers := make([]User, 0)
+				for _, user := range users {
+					apiUsers = append(apiUsers, newUser(user))
 				}
 				status, response = getResponse(http.StatusOK, apiUsers)
 			} else {
@@ -247,11 +247,11 @@ func (uah *UsersApiHandler) UsersUseridStatsGet(w http.ResponseWriter, r *http.R
 			if err == nil {
 				itemStatsList, err := uah.matomat.UsersUseridStatsGet(userID)
 				if err == nil {
-					apiItemStats := make(map[uint32]ItemStats)
-					for k, v := range items {
-						itemStats, found := itemStatsList[k]
+					apiItemStats := make([]ItemStats, 0)
+					for _, item := range items {
+						itemStats, found := getStatsForItem(itemStatsList, item.ID)
 						if found {
-							apiItemStats[k] = newItemStats(v, itemStats)
+							apiItemStats = append(apiItemStats, newItemStats(item, itemStats))
 						}
 					}
 					status, response = getResponse(http.StatusOK, apiItemStats)

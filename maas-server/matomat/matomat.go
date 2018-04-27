@@ -214,7 +214,7 @@ func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item
 	return returnedItem, retErr
 }
 
-func (m *Matomat) ItemsList() (map[uint32]items.Item, error) {
+func (m *Matomat) ItemsList() ([]items.Item, error) {
 	return m.itemRepo.List()
 }
 
@@ -238,7 +238,7 @@ func (m *Matomat) ItemGetStats(itemID uint32) (items.Item, items.ItemStats, erro
 	return item, itemStats, retErr
 }
 
-func (m *Matomat) ItemStatsList() (map[uint32]items.ItemStats, error) {
+func (m *Matomat) ItemStatsList() ([]items.ItemStats, error) {
 	return m.itemStatsRepo.List()
 }
 
@@ -291,6 +291,6 @@ func (m *Matomat) UserCreditsWithdraw(userID uint32, credits int32) (users.User,
 	return user, retErr
 }
 
-func (m *Matomat) UsersUseridStatsGet(userID uint32) (map[uint32]items.ItemStats, error) {
+func (m *Matomat) UsersUseridStatsGet(userID uint32) ([]items.ItemStats, error) {
 	return m.userItemsStatsRepo.Get(userID)
 }

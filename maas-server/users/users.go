@@ -3,6 +3,7 @@ package users
 import (
 	"errors"
 
+	"github.com/k4cg/matomat-service/maas-server/items"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,11 +20,27 @@ func NewUsers(userRepo UserRepositoryInterface, passwordHashingCost int) *Users 
 	return &Users{userRepo: userRepo, passwordHashingCost: passwordHashingCost}
 }
 
+//TODO this is code duplication make this more generic / user better or more goish way
+func getStatsForItem(itemStatsList []items.ItemStats, itemID uint32) (items.ItemStats, bool) {
+	var returnedItemStats items.ItemStats
+	found := false
+
+	for _, itemStats := range itemStatsList {
+		if itemStats.ItemID == itemID {
+			returnedItemStats = itemStats
+			found = true
+			break
+		}
+	}
+
+	return returnedItemStats, found
+}
+
 func (ua *Users) GetUser(userId uint32) (User, error) {
 	return ua.userRepo.Get(userId)
 }
 
-func (ua *Users) ListUsers() (map[uint32]User, error) {
+func (ua *Users) ListUsers() ([]User, error) {
 	return ua.userRepo.List()
 }
 
@@ -67,7 +84,7 @@ func (ua *Users) SetPassword(userId uint32, newPassword string, newPasswordRepea
 				err = errors.New(ERROR_PASSWORDS_DO_NOT_MATCH)
 			}
 		} else {
-			err = errors.New(ERROR_UNKOWN_USER)
+			err = errors.New(ERROR_INVALID_USERNAME_OR_PASSWORD)
 		}
 	}
 	return user, err

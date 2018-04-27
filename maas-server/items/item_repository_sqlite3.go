@@ -35,8 +35,8 @@ func (r *ItemRepoSqlite3) Get(itemID uint32) (Item, error) {
 	return item, err
 }
 
-func (r *ItemRepoSqlite3) List() (map[uint32]Item, error) {
-	items := make(map[uint32]Item)
+func (r *ItemRepoSqlite3) List() ([]Item, error) {
+	items := make([]Item, 0)
 	var err error
 
 	rows, err := r.db.Query("SELECT ID, name, cost FROM items")
@@ -46,7 +46,7 @@ func (r *ItemRepoSqlite3) List() (map[uint32]Item, error) {
 			var name string
 			var cost uint32
 			rows.Scan(&id, &name, &cost)
-			items[id] = Item{ID: id, Name: name, Cost: cost}
+			items = append(items, Item{ID: id, Name: name, Cost: cost})
 		}
 		rows.Close()
 	}

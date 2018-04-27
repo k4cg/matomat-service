@@ -20,8 +20,8 @@ func NewUserItemsStatsRepoSqlite3(sqlite3DbFilePath string) *UserItemsStatsRepoS
 	}
 }
 
-func (r *UserItemsStatsRepoSqlite3) Get(userID uint32) (map[uint32]items.ItemStats, error) {
-	itemsStats := make(map[uint32]items.ItemStats)
+func (r *UserItemsStatsRepoSqlite3) Get(userID uint32) ([]items.ItemStats, error) {
+	itemsStats := make([]items.ItemStats, 0)
 	var err error
 
 	rows, err := r.db.Query("SELECT itemID, consumed FROM user_items_stats WHERE userID=?", userID)
@@ -32,7 +32,7 @@ func (r *UserItemsStatsRepoSqlite3) Get(userID uint32) (map[uint32]items.ItemSta
 
 			rows.Scan(&itemid, &consumed)
 
-			itemsStats[itemid] = items.ItemStats{ItemID: itemid, Consumed: consumed}
+			itemsStats = append(itemsStats, items.ItemStats{ItemID: itemid, Consumed: consumed})
 		}
 		rows.Close()
 	}
@@ -44,7 +44,7 @@ func (r *UserItemsStatsRepoSqlite3) CountConsumption(userID uint32, itemID uint3
 	var err error
 	oldItemStats, err := r.Get(userID)
 	if err == nil {
-		_, found := oldItemStats[itemID]
+		_, found := getStatsForItem(oldItemStats, itemID)
 		if !found {
 			//create new stats entry
 			stmt, err := r.db.Prepare("INSERT INTO user_items_stats (userID, itemID, consumed) VALUES (?, ?, ?)")
