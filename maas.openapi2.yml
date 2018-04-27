@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.5.0
+  version: 0.5.1
 host: localhost:8443
 basePath: /v0
 schemes:
@@ -86,8 +86,8 @@ paths:
           minimum: 0
           required: true
       responses:
-        200:
-          description: Success
+        201:
+          description: Created
           schema:
             $ref: '#/definitions/Item'
         default:
@@ -140,7 +140,7 @@ paths:
           description: An error occured
           schema:
             $ref: '#/definitions/Error'
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -189,7 +189,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /items/{itemId}/consume:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -288,8 +288,8 @@ paths:
           type: string
           required: true
       responses:
-        200:
-          description: Success
+        201:
+          description: Created
           schema:
             $ref: '#/definitions/User'
         default:
@@ -340,7 +340,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/credits/add:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -372,7 +372,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/credits/withdraw:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -408,7 +408,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/credits/transfer:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -469,7 +469,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/password:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -508,7 +508,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/resetpassword:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:

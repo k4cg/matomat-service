@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.5.0
+  version: 0.5.1
 servers:
   - url: https://maas.intern.k4cg.org/v0
     description: The production server
@@ -102,8 +102,8 @@ paths:
                 - name
                 - cost              
       responses:
-        200:
-          description: Success
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -166,7 +166,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -242,7 +242,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /items/{itemId}/consume:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -355,8 +355,8 @@ paths:
                 - password
                 - passwordrepeat
       responses:
-        200:
-          description: Success
+        201:
+          description: Created
           content:
             application/json:
               schema:
@@ -425,7 +425,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/add:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -517,7 +517,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/transfer:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -595,7 +595,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/password:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
@@ -642,7 +642,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/resetpassword:
-    put:
+    patch:
       security:
       - jwtTokenAuth: []
       tags:
