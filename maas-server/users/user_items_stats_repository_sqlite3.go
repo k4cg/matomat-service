@@ -44,7 +44,7 @@ func (r *UserItemsStatsRepoSqlite3) CountConsumption(userID uint32, itemID uint3
 	var err error
 	oldItemStats, err := r.Get(userID)
 	if err == nil {
-		_, found := getStatsForItem(oldItemStats, itemID)
+		_, found := items.GetStatsForItem(oldItemStats, itemID)
 		if !found {
 			//create new stats entry
 			stmt, err := r.db.Prepare("INSERT INTO user_items_stats (userID, itemID, consumed) VALUES (?, ?, ?)")

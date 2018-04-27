@@ -7,6 +7,7 @@ package api
 import (
 	"net/http"
 
+	items_ "github.com/k4cg/matomat-service/maas-server/items"
 	"github.com/k4cg/matomat-service/maas-server/users"
 
 	"github.com/k4cg/matomat-service/maas-server/auth"
@@ -249,7 +250,7 @@ func (uah *UsersApiHandler) UsersUseridStatsGet(w http.ResponseWriter, r *http.R
 				if err == nil {
 					apiItemStats := make([]ItemStats, 0)
 					for _, item := range items {
-						itemStats, found := getStatsForItem(itemStatsList, item.ID)
+						itemStats, found := items_.GetStatsForItem(itemStatsList, item.ID)
 						if found {
 							apiItemStats = append(apiItemStats, newItemStats(item, itemStats))
 						}

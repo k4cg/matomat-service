@@ -3,7 +3,6 @@ package users
 import (
 	"errors"
 
-	"github.com/k4cg/matomat-service/maas-server/items"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,22 +17,6 @@ const ERROR_INVALID_USERNAME_OR_PASSWORD = "Invalid username or password"
 
 func NewUsers(userRepo UserRepositoryInterface, passwordHashingCost int) *Users {
 	return &Users{userRepo: userRepo, passwordHashingCost: passwordHashingCost}
-}
-
-//TODO this is code duplication make this more generic / user better or more goish way
-func getStatsForItem(itemStatsList []items.ItemStats, itemID uint32) (items.ItemStats, bool) {
-	var returnedItemStats items.ItemStats
-	found := false
-
-	for _, itemStats := range itemStatsList {
-		if itemStats.ItemID == itemID {
-			returnedItemStats = itemStats
-			found = true
-			break
-		}
-	}
-
-	return returnedItemStats, found
 }
 
 func (ua *Users) GetUser(userId uint32) (User, error) {

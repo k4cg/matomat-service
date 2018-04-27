@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/k4cg/matomat-service/maas-server/items"
 )
 
 const ERROR_FORBIDDEN string = "Forbidden"
@@ -95,20 +93,4 @@ func getErrorResponse(successState int, message string) (int, []byte) {
 
 func getErrorForbiddenResponse() (int, []byte) {
 	return getErrorResponse(http.StatusForbidden, ERROR_FORBIDDEN)
-}
-
-//TODO this is code duplication make this more generic / user better or more goish way
-func getStatsForItem(itemStatsList []items.ItemStats, itemID uint32) (items.ItemStats, bool) {
-	var returnedItemStats items.ItemStats
-	found := false
-
-	for _, itemStats := range itemStatsList {
-		if itemStats.ItemID == itemID {
-			returnedItemStats = itemStats
-			found = true
-			break
-		}
-	}
-
-	return returnedItemStats, found
 }

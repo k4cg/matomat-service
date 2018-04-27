@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/k4cg/matomat-service/maas-server/auth"
+	items_ "github.com/k4cg/matomat-service/maas-server/items"
 	"github.com/k4cg/matomat-service/maas-server/matomat"
 )
 
@@ -220,7 +221,7 @@ func (iah *ItemsApiHandler) ItemsStatsGet(w http.ResponseWriter, r *http.Request
 				if err == nil {
 					apiItemStats := make([]ItemStats, 0)
 					for _, item := range items {
-						itemStats, found := getStatsForItem(itemStatsList, item.ID)
+						itemStats, found := items_.GetStatsForItem(itemStatsList, item.ID)
 						if found {
 							apiItemStats = append(apiItemStats, newItemStats(item, itemStats))
 						}
