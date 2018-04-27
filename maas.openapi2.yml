@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.4.28
+  version: 0.5.0
 host: localhost:8443
 basePath: /v0
 schemes:
@@ -468,19 +468,24 @@ paths:
           description: An error occured
           schema:
             $ref: '#/definitions/Error'
-  /users/password:
+  /users/{userId}/password:
     put:
       security:
       - jwtTokenAuth: []
       tags:
       - users
-      summary: Set password for currently logged in user.
-      description: Set password for currently logged in user. Must provide old and new password (twice) in order to be allowed to change it.
+      summary: Change password for currently logged in user.
+      description: Change password for currently logged in user. Must provide old and new passwords (twice) in order to be allowed to change it.
       consumes:
         - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
+        - in: path
+          name: userId
+          type: integer
+          required: true
+          description: The ID of the user for which the password should be changed
         - in: formData
           name: password
           type: string
@@ -502,14 +507,14 @@ paths:
           description: An error occured
           schema:
             $ref: '#/definitions/Error'
-  /users/{userId}/password:
+  /users/{userId}/resetpassword:
     put:
       security:
       - jwtTokenAuth: []
       tags:
       - users
       summary: Set password for user ID
-      description: Set password for user ID. This can only be done by the logged by a admin for a different user. TODO expect the new password (twice)
+      description: Set password for user ID. This can only be done by a logged in admin for a different user than self.
       consumes:
         - application/x-www-form-urlencoded
       produces:
@@ -519,7 +524,7 @@ paths:
           name: userId
           type: integer
           required: true
-          description: The ID of the user do which the password should be changed
+          description: The ID of the user for which the password should be changed
         - in: formData
           name: passwordnew
           type: string

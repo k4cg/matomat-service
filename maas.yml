@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: MaaS
   description: Draft for MaaS (Matomat as a Service)
-  version: 0.4.28
+  version: 0.5.0
 servers:
   - url: https://maas.intern.k4cg.org/v0
     description: The production server
@@ -594,14 +594,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/password:
+  /users/{userId}/password:
     put:
       security:
       - jwtTokenAuth: []
       tags:
       - users
-      summary: Set password for currently logged in user.
-      description: Set password for currently logged in user. Must provide old and new password (twice) in order to be allowed to change it.
+      summary: Change password for currently logged in user.
+      description: Change password for currently logged in user. Must provide old and new passwords (twice) in order to be allowed to change it.
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: The ID of the user for which the password should be changed
       requestBody:
         description: The new password
         required: true
@@ -633,14 +641,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{userId}/password:
+  /users/{userId}/resetpassword:
     put:
       security:
       - jwtTokenAuth: []
       tags:
       - users
       summary: Set password for user ID
-      description: Set password for user ID. This can only be done by the logged by a admin for a different user. TODO expect the new password (twice)
+      description: Set password for user ID. This can only be done by a logged in admin for a different user than self.
       parameters:
       - in: path
         name: userId
@@ -648,7 +656,7 @@ paths:
           type: integer
           format: int32
         required: true
-        description: The ID of the user do which the password should be changed
+        description: The ID of the user for which the password should be changed
       requestBody:
         description: The new password
         required: true
