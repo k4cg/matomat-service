@@ -54,6 +54,8 @@ paths:
           description: Invalid username/password supplied
   /items:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: List all available items
@@ -74,6 +76,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     post:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: Add a new item
@@ -112,6 +116,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /items/stats:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: Get consumption stats of all items
@@ -133,6 +139,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /items/{itemId}:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: Get a certain Item
@@ -159,6 +167,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: Update Item
@@ -204,6 +214,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: Delete Item
@@ -231,6 +243,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /items/{itemId}/consume:
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - items
       summary: Consumes a Item
@@ -264,7 +278,9 @@ paths:
                 $ref: '#/components/schemas/Error'
   /items/{itemId}/stats:
     get:
-      tags:
+      security:
+      - jwtTokenAuth: []
+      tags:      
       - items
       summary: Get consumption stats
       description: Get the matomat stats for a certain Item
@@ -291,6 +307,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: List all users
@@ -311,6 +329,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     post:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Add a new user
@@ -349,6 +369,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/{userId}:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Get user by user ID
@@ -375,6 +397,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Delete user
@@ -402,6 +426,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/add:
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Add users credits
@@ -443,6 +469,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/withdraw:
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Widthdraw users credits
@@ -490,6 +518,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/transfer:
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Transfer credits
@@ -537,6 +567,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/stats:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Get matomat stats for user
@@ -564,6 +596,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/password:
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Set password for currently logged in user.
@@ -609,6 +643,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/password:
     put:
+      security:
+      - jwtTokenAuth: []
       tags:
       - users
       summary: Set password for user ID
@@ -651,6 +687,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /service/stats:
     get:
+      security:
+      - jwtTokenAuth: []
       tags:
       - service
       summary: Total service stats 
@@ -670,10 +708,10 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+    jwtTokenAuth:            # faking JWT bearer authentication using api key type
+      type: apiKey
+      in: header
+      name: Authorization
   schemas:
     AuthSuccess:
       type: object
