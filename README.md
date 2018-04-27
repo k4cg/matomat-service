@@ -13,6 +13,7 @@ See `maas.yml` / `maas.openapi2.yml`.
 
 ## Easy testing of the API
 Use a tool like [Postman](https://www.getpostman.com/) and import the API definition file (Currently only OpenAPI 2.0 is supported by Postman so use `maas.openapi2.yml`).
+Another alternative would be to use [Swagger Code Editor](https://editor.swagger.io//#/), import and then use the "Authorize/Execute/Test" functionality.
 
 ## Authentication concept
 A client authenticates to the service by passing a username and password (as well as a validity time in seconds) to the server.
