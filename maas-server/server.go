@@ -5,8 +5,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/olebedev/config"
@@ -69,10 +75,11 @@ func buildUsers(cfg *config.Config, userRepo users.UserRepositoryInterface) *use
 
 func buildEventDispatcher(cfg *config.Config) matomat.EventDispatcherInterface {
 	//TODO add error handling / checking on config value retrieval
-	clientID, _ := cfg.String("mqtt.clientID")
-	connectionString, _ := cfg.String("mqtt.connectionString")
-	topic, _ := cfg.String("mqtt.topic")
-	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic)
+	clientID, _ := cfg.String("event_dispatching.mqtt.client_id")
+	connectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
+	topic, _ := cfg.String("event_dispatching.mqtt.topic")
+	enabled, _ := cfg.Bool("event_dispatching.enabled")
+	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic, enabled)
 }
 
 func runServer(cfg *config.Config, router *mux.Router) error {
@@ -86,9 +93,26 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 	return http.ListenAndServeTLS(addr+":"+port, sslServerCertFilePath, sslServerKeyFilePath, router)
 }
 
+func setupSignalHandling(cfg *config.Config) {
+	shutdownGraceperiodSeconds, _ := cfg.Int("general.shutdown_graceperiod_seconds")
+	var gracefulStop = make(chan os.Signal)
+	signal.Notify(gracefulStop, syscall.SIGTERM)
+	signal.Notify(gracefulStop, syscall.SIGINT)
+	go func() {
+		sig := <-gracefulStop
+		fmt.Printf("Caught SIG: %+v\n", sig)
+		fmt.Println("Wait for " + strconv.Itoa(shutdownGraceperiodSeconds) + " second to finish processing")
+		time.Sleep(time.Duration(shutdownGraceperiodSeconds) * time.Second)
+		os.Exit(0)
+	}()
+}
+
 func main() {
 	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
+
 	if err == nil {
+		setupSignalHandling(cfg)
+
 		userRepo, itemRepo, itemStatsRepo, userItemStatsRepo := buildRepos(cfg)
 		auth := buildAuth(cfg)
 		users := buildUsers(cfg, userRepo)

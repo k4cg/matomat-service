@@ -10,18 +10,22 @@ type EventDispatcherMqtt struct {
 	connectionString string
 	clientID         string
 	topic            string
+	enabled          bool
 	client           MQTT.Client
 }
 
-func NewEventDispatcherMqtt(connectionString string, clientID string, topic string) *EventDispatcherMqtt {
+func NewEventDispatcherMqtt(connectionString string, clientID string, topic string, enabled bool) *EventDispatcherMqtt {
 	opts := MQTT.NewClientOptions().AddBroker(connectionString) //connectionString example: "tcp://localhost:4242"
 	opts.SetClientID(clientID)                                  //clientID example: "matomat-server"
-	return &EventDispatcherMqtt{connectionString: connectionString, clientID: clientID, topic: topic, client: MQTT.NewClient(opts)}
+	return &EventDispatcherMqtt{connectionString: connectionString, clientID: clientID, topic: topic, client: MQTT.NewClient(opts), enabled: enabled}
 }
 
 //TODO should the username be passed in????
 func (ed *EventDispatcherMqtt) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost uint32) error {
 	var err error
+	if !ed.enabled {
+		return err
+	}
 
 	//start a mqtt client
 	if token := ed.client.Connect(); token.Wait() && token.Error() != nil {

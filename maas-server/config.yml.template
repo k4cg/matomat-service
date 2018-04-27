@@ -1,3 +1,6 @@
+general:
+  enable_event_dispatching: false
+
 listen:
   addr: <ADDR TO LISTEN ON> 
   port: 8443
@@ -8,9 +11,9 @@ auth:
   hash:
     rounds: 10
 jwt:
-  issuer: <TOKEN ISSUER>
+  issuer: <TOKEN ISSUER, e.g. k4cg.org>
   sig:
-    secret: <HASH SALT>
+    secret: <HASH SALT => random string, minimum length 32 characters>
   valid_sec: 
     default: <JWT TOKEN VALIDITY IN SECONDS>
     max: 15552000
@@ -20,7 +23,9 @@ db:
     users: ./db/matomat.db
     items_stats: ./db/matomat.db
     user_items_stats: ./db/matomat.db
-mqtt:
-    clientID: matomat-server
-    connectionString: <CONNECTION STRING, EXAMPLE: tcp://localhost:4242>
+event_dispatching:
+  enabled: false
+  mqtt:
+    client_id: matomat-server
+    connection_string: <CONNECTION STRING, EXAMPLE: tcp://localhost:4242>
     topic: <NAME OF THE MQTT TOPIC, EXAMPLE: matomat>
