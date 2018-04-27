@@ -36,6 +36,8 @@ const ACTION_USERS_USERID_STATS_GET string = "UsersUseridStatsGet"
 const ACTION_USERS_OWN_PASSWORD_CHANGE string = "UserPasswordPut"
 const ACTION_USERS_USERID_PASSWORD_CHANGE string = "UsersUseridPasswordPut"
 
+const ACTION_SERVICE_STATS = "ServiceStatsGet"
+
 const ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS string = "Not enough credits"
 const ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS string = "User does not have enough credits to transfer"
 const ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER string = "User to transfer credits to not unknown"

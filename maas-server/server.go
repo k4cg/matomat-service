@@ -39,21 +39,22 @@ func buildRepos(cfg *config.Config) (users.UserRepositoryInterface, items.ItemRe
 	return userRepo, itemRepo, itemStatsRepo, userItemStatsRepo
 }
 
-func buildApiHandlers(auth auth.AuthInterface, users *users.Users, matomat *matomat.Matomat) (*api.AuthApiHandler, *api.UsersApiHandler, *api.ItemsApiHandler) {
+func buildApiHandlers(auth auth.AuthInterface, users *users.Users, matomat *matomat.Matomat) (*api.AuthApiHandler, *api.UsersApiHandler, *api.ItemsApiHandler, *api.ServiceApiHandler) {
 	authApiHandler := api.NewAuthApiHandler(auth, users)
 	usersApiHandler := api.NewUsersApiHandler(auth, users, matomat)
 	itemsApiHandler := api.NewItemsApiHandler(auth, matomat)
-
-	return authApiHandler, usersApiHandler, itemsApiHandler
+	serviceApiHandler := api.NewServiceApiHandler(auth, matomat)
+	return authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler
 }
 
-func buildRoutes(auth auth.AuthInterface, authApiHandler *api.AuthApiHandler, usersApiHandler *api.UsersApiHandler, itemsApiHandler *api.ItemsApiHandler) []api.Route {
+func buildRoutes(auth auth.AuthInterface, authApiHandler *api.AuthApiHandler, usersApiHandler *api.UsersApiHandler, itemsApiHandler *api.ItemsApiHandler, serviceApiHandler *api.ServiceApiHandler) []api.Route {
 	authRoutes := api.BuildAuthRoutes(auth, authApiHandler)
 	usersRoutes := api.BuildUsersRoutes(auth, usersApiHandler)
 	itemsRoutes := api.BuildItemsRoutes(auth, itemsApiHandler)
-
+	serviceRoutes := api.BuildServiceRoutes(auth, serviceApiHandler)
 	routes := append(itemsRoutes, usersRoutes...)
-	return append(routes, authRoutes...)
+	routes = append(routes, authRoutes...)
+	return append(routes, serviceRoutes...)
 }
 
 func buildAuth(cfg *config.Config) *auth.AuthJWT {
@@ -119,9 +120,9 @@ func main() {
 		eventDispatcherMqtt := buildEventDispatcher(cfg)
 		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
 
-		authApiHandler, usersApiHandler, itemsApiHandler := buildApiHandlers(auth, users, matomat)
+		authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler := buildApiHandlers(auth, users, matomat)
 
-		routes := buildRoutes(auth, authApiHandler, usersApiHandler, itemsApiHandler)
+		routes := buildRoutes(auth, authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler)
 
 		router := api.NewRouter(routes)
 

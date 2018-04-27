@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/k4cg/matomat-service/maas-server/items"
+	"github.com/k4cg/matomat-service/maas-server/matomat"
 	"github.com/k4cg/matomat-service/maas-server/users"
 )
 
@@ -58,4 +59,49 @@ type AuthSuccess struct {
 
 func newAuthSuccess(token string, expirationTimestamp uint32) AuthSuccess {
 	return AuthSuccess{Token: token, ExpirationTimestamp: expirationTimestamp}
+}
+
+type ServiceStats struct {
+	Items *ItemsServiceStats `json:"items"`
+	Users *UsersServiceStats `json:"users"`
+}
+
+type ItemsServiceStats struct {
+	Count uint32                 `json:"count"`
+	Cost  *ItemsCostServiceStats `json:"cost"`
+}
+
+type ItemsCostServiceStats struct {
+	Avg uint32 `json:"avg"`
+	Min uint32 `json:"min"`
+	Max uint32 `json:"max"`
+}
+
+type UsersServiceStats struct {
+	Count   uint32                    `json:"count"`
+	Credits *UsersCreditsServiceStats `json:"credits"`
+}
+
+type UsersCreditsServiceStats struct {
+	Sum uint32 `json:"sum"`
+	Avg uint32 `json:"avg"`
+	Min uint32 `json:"min"`
+	Max uint32 `json:"max"`
+}
+
+func newServiceStats(stats *matomat.ServiceStats) *ServiceStats {
+	itemsStats := stats.Items
+	itemsStatsCost := itemsStats.Cost
+	usersStats := stats.Users
+	usersStatsCredits := usersStats.Credits
+
+	apiItemsCost := &ItemsCostServiceStats{Avg: itemsStatsCost.Avg, Min: itemsStatsCost.Min, Max: itemsStatsCost.Max}
+	apiUsersCredits := &UsersCreditsServiceStats{Sum: usersStatsCredits.Sum, Avg: usersStatsCredits.Avg, Min: usersStatsCredits.Min, Max: usersStatsCredits.Max}
+
+	apiItems := &ItemsServiceStats{Count: itemsStats.Count, Cost: apiItemsCost}
+	apiUsers := &UsersServiceStats{Count: usersStats.Count, Credits: apiUsersCredits}
+
+	apiStats := &ServiceStats{Items: apiItems, Users: apiUsers}
+
+	return apiStats
 }
