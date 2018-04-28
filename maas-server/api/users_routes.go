@@ -67,14 +67,14 @@ func BuildUsersRoutes(auth auth.AuthInterface, handler *UsersApiHandler) []Route
 		Route{
 			"UsersPasswordPut",
 			strings.ToUpper("Put"),
-			"/v0/users/password",
+			"/v0/users/{userid}/password",
 			AuthenticationMiddleware(auth, handler.UsersPasswordPut),
 		},
 
 		Route{
 			"UsersUserIdPasswordPut",
 			strings.ToUpper("Put"),
-			"/v0/users/{userid}/password",
+			"/v0/users/{userid}/resetpassword",
 			AuthenticationMiddleware(auth, handler.UsersUseridPasswordPut),
 		},
 	}
