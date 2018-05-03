@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/olebedev/config"
 
@@ -88,8 +89,14 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 	sslServerKeyFilePath, _ := cfg.String("ssl.key")
 	sslServerCertFilePath, _ := cfg.String("ssl.cert")
 
+	//prepare CORS setup
+	//TODO make this configurable using the config
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+
 	log.Printf("MaaS server started at " + addr + ":" + port)
-	return http.ListenAndServeTLS(addr+":"+port, sslServerCertFilePath, sslServerKeyFilePath, router)
+	return http.ListenAndServeTLS(addr+":"+port, sslServerCertFilePath, sslServerKeyFilePath, handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(router))
 }
 
 func setupSignalHandling(cfg *config.Config) {
