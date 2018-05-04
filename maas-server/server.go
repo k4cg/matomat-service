@@ -5,6 +5,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,6 +25,31 @@ import (
 )
 
 const CONFIG_FILE_PATH = "config.yml"
+
+func main() {
+	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
+
+	if err == nil {
+		setupSignalHandling(cfg)
+
+		userRepo, itemRepo, itemStatsRepo, userItemStatsRepo := buildRepos(cfg)
+		auth := buildAuth(cfg)
+		users := buildUsers(cfg, userRepo)
+
+		eventDispatcherMqtt := buildEventDispatcher(cfg)
+		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
+
+		authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler := buildApiHandlers(auth, users, matomat)
+
+		routes := buildRoutes(auth, authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler)
+
+		router := api.NewRouter(routes)
+
+		log.Fatal(runServer(cfg, router))
+	} else {
+		log.Fatal(err)
+	}
+}
 
 func buildRepos(cfg *config.Config) (users.UserRepositoryInterface, items.ItemRepositoryInterface, items.ItemStatsRepositoryInterface, users.UserItemsStatsRepositoryInterface) {
 	//TODO add error handling / checking on config value retrieval
@@ -89,11 +115,28 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 	sslServerKeyFilePath, _ := cfg.String("ssl.key")
 	sslServerCertFilePath, _ := cfg.String("ssl.cert")
 
+	//TODO factor out the for loops into separate functions, this is very bad repetetive code...
+	headers, _ := cfg.List("cors.headers")
+	sheaders := make([]string, len(headers))
+	for i, v := range headers {
+		sheaders[i] = fmt.Sprint(v)
+	}
+	origins, _ := cfg.List("cors.origins")
+	sorigins := make([]string, len(origins))
+	for i, v := range origins {
+		sorigins[i] = fmt.Sprint(v)
+	}
+	methods, _ := cfg.List("cors.methods")
+	smethods := make([]string, len(methods))
+	for i, v := range methods {
+		smethods[i] = fmt.Sprint(v)
+	}
+
 	//prepare CORS setup
 	//TODO make this configurable using the config
-	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
-	allowedMethods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+	allowedHeaders := handlers.AllowedHeaders(sheaders)
+	allowedOrigins := handlers.AllowedOrigins(sorigins)
+	allowedMethods := handlers.AllowedMethods(smethods)
 
 	log.Printf("MaaS server started at " + addr + ":" + port)
 	return http.ListenAndServeTLS(addr+":"+port, sslServerCertFilePath, sslServerKeyFilePath, handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(router))
@@ -112,29 +155,4 @@ func setupSignalHandling(cfg *config.Config) {
 		time.Sleep(time.Duration(shutdownGraceperiodSeconds) * time.Second)
 		os.Exit(0)
 	}()
-}
-
-func main() {
-	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
-
-	if err == nil {
-		setupSignalHandling(cfg)
-
-		userRepo, itemRepo, itemStatsRepo, userItemStatsRepo := buildRepos(cfg)
-		auth := buildAuth(cfg)
-		users := buildUsers(cfg, userRepo)
-
-		eventDispatcherMqtt := buildEventDispatcher(cfg)
-		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
-
-		authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler := buildApiHandlers(auth, users, matomat)
-
-		routes := buildRoutes(auth, authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler)
-
-		router := api.NewRouter(routes)
-
-		log.Fatal(runServer(cfg, router))
-	} else {
-		log.Fatal(err)
-	}
 }

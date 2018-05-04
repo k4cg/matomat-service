@@ -6,6 +6,10 @@ listen:
 ssl:
   key: server.key.pem
   cert: server.cert.pem
+cors:
+  headers: ['X-Requested-With', 'Content-Type', 'Authorization']
+  origins: ['*']
+  methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 auth:
   hash:
     rounds: 10
