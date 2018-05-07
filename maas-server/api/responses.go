@@ -55,10 +55,11 @@ func newItemStats(item items.Item, itemStats items.ItemStats) ItemStats {
 type AuthSuccess struct {
 	Token               string `json:"token"`
 	ExpirationTimestamp uint32 `json:"expires"`
+	User                User   `json:"user"`
 }
 
-func newAuthSuccess(token string, expirationTimestamp uint32) AuthSuccess {
-	return AuthSuccess{Token: token, ExpirationTimestamp: expirationTimestamp}
+func newAuthSuccess(token string, expirationTimestamp uint32, user users.User) AuthSuccess {
+	return AuthSuccess{Token: token, ExpirationTimestamp: expirationTimestamp, User: newUser(user)}
 }
 
 type ServiceStats struct {

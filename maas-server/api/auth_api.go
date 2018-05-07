@@ -42,12 +42,12 @@ func (aah *AuthApiHandler) AuthLoginPost(w http.ResponseWriter, r *http.Request)
 
 	userName, userPassword, tokenValiditySeconds, err := extractLoginData(r)
 	if err == nil {
-		users, err := aah.users.IsPasswordValid(userName, userPassword)
+		user, err := aah.users.IsPasswordValid(userName, userPassword)
 		if err == nil {
-			claims := aah.auth.NewAuthTokenClaims(users.ID, users.Username, tokenValiditySeconds)
+			claims := aah.auth.NewAuthTokenClaims(user.ID, user.Username, tokenValiditySeconds)
 			token, err := aah.auth.GetToken(claims)
 			if err == nil {
-				status, response = getResponse(http.StatusOK, newAuthSuccess(token, uint32(claims.ExpiresAt))) //TODO another evil cast...
+				status, response = getResponse(http.StatusOK, newAuthSuccess(token, uint32(claims.ExpiresAt), user)) //TODO another evil cast...
 			} else {
 				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
 			}
