@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: MaaS
-  description: Draft for MaaS (Matomat as a Service)
-  version: 0.5.1
+  description: MaaS (Matomat as a Service) API definition
+  version: 0.5.2
 servers:
   - url: https://maas.intern.k4cg.org/v0
     description: The production server
@@ -720,7 +720,9 @@ components:
           type: string
         expires:
           type: integer
-          format: int32        
+          format: int32
+        user:
+          $ref: '#/components/schemas/User'
     User:
       type: object
       properties:
