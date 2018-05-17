@@ -11,7 +11,7 @@ type Error struct {
 }
 
 func newUser(user users.User) User {
-	return User{ID: user.ID, Username: user.Username, Credits: user.Credits}
+	return User{ID: user.ID, Username: user.Username, Credits: user.Credits, Admin: user.IsAdmin()}
 }
 
 //Represenation of a Matomat users on API level
@@ -19,6 +19,7 @@ type User struct {
 	ID       uint32 `json:"id"`
 	Username string `json:"username"`
 	Credits  uint32 `json:"credits"`
+	Admin    bool   `json:"admin"`
 }
 
 type TransferredCredits struct {

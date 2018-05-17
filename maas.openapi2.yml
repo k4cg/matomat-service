@@ -588,6 +588,8 @@ definitions:
       credits:
         type: integer
         format: int32
+      admin:
+        type: boolean
   TransferredCredits:
     description: The information on the sending user after the transaction, as well as the amount transferred
     type: object
