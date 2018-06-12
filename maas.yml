@@ -334,7 +334,7 @@ paths:
       tags:
       - users
       summary: Add a new user
-      description: Add a new user. Only admin users are allowed to do this
+      description: Add a new user. Only admin users are allowed to do this. If "admin" is greater than 0, the new user will be created as admin user.
       requestBody:
         description: Information required to create an user
         required: true
@@ -350,10 +350,13 @@ paths:
                   type: string
                 passwordrepeat:
                   type: string
+                admin:
+                  type: integer
               required:
                 - name
                 - password
                 - passwordrepeat
+                - admin
       responses:
         201:
           description: Created

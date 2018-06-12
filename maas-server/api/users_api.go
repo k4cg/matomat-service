@@ -27,7 +27,7 @@ func NewUsersApiHandler(auth auth.AuthInterface, users *users.Users, matomat *ma
 	return &UsersApiHandler{auth: auth, users: users, matomat: matomat}
 }
 
-func extractUserCreateData(r *http.Request) (string, string, string, error) {
+func extractUserCreateData(r *http.Request) (string, string, string, int32, error) {
 	var err error
 
 	r.ParseForm()
@@ -35,8 +35,9 @@ func extractUserCreateData(r *http.Request) (string, string, string, error) {
 	userName, err := formGet(r, FORM_KEY_NAME)
 	password, err := formGet(r, FORM_KEY_PASSWORD)
 	passwordRepeat, err := formGet(r, FORM_KEY_PASSWORD_REPEAT)
+	isAdmin, err := formGetInt32(r, FORM_KEY_IS_ADMIN)
 
-	return userName, password, passwordRepeat, err
+	return userName, password, passwordRepeat, isAdmin, err
 }
 
 func extractPasswordChangeData(r *http.Request) (string, string, string, error) {
@@ -132,9 +133,9 @@ func (uah *UsersApiHandler) UsersPost(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil {
 		if uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_CREATE) {
-			name, password, passwordRepeat, err := extractUserCreateData(r)
+			name, password, passwordRepeat, isAdmin, err := extractUserCreateData(r)
 			if err == nil {
-				user, err := uah.users.CreateUser(name, password, passwordRepeat)
+				user, err := uah.users.CreateUser(name, password, passwordRepeat, isAdmin)
 				if err == nil {
 					status, response = getResponse(http.StatusCreated, newUser(user))
 				} else {

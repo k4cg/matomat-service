@@ -269,7 +269,7 @@ paths:
       tags:
       - users
       summary: Add a new user
-      description: Add a new user. Only admin users are allowed to do this
+      description: Add a new user. Only admin users are allowed to do this. If "admin" is greater than 0, the new user will be created as admin user.
       consumes:
         - application/x-www-form-urlencoded      
       produces:
@@ -286,6 +286,10 @@ paths:
         - in: formData
           name: passwordrepeat
           type: string
+          required: true
+        - in: formData
+          name: admin
+          type: integer
           required: true
       responses:
         201:

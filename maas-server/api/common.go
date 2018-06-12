@@ -22,6 +22,7 @@ const FORM_KEY_USERNAME string = "username"
 const FORM_KEY_PASSWORD string = "password"
 const FORM_KEY_PASSWORD_NEW string = "passwordnew"
 const FORM_KEY_PASSWORD_REPEAT string = "passwordrepeat"
+const FORM_KEY_IS_ADMIN string = "admin"
 const FORM_KEY_TOKEN_VALIDITY_SECONDS string = "validityseconds"
 
 //TODO make these "extract id" methods usable for all to avoid code duplication ... wonky implementation here

@@ -31,7 +31,7 @@ func (ua *Users) DeleteUser(userID uint32) (User, error) {
 	return ua.userRepo.Delete(userID)
 }
 
-func (ua *Users) CreateUser(username string, password string, passwordRepeat string) (User, error) {
+func (ua *Users) CreateUser(username string, password string, passwordRepeat string, isAdmin int32) (User, error) {
 	var newUser User
 	existingUser, err := ua.userRepo.GetByUsername(username)
 	if err == nil {
@@ -39,8 +39,7 @@ func (ua *Users) CreateUser(username string, password string, passwordRepeat str
 			if password == passwordRepeat {
 				hashedPassword, err := ua.hashPassword(password)
 				if err == nil {
-					newUser.Username = username
-					newUser.Password = hashedPassword
+					newUser = User{Username: username, Password: hashedPassword, admin: isAdmin > 0}
 					newUser, err = ua.userRepo.Save(newUser)
 				}
 			} else {
