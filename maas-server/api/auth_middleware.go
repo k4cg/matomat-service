@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/context"
 	"github.com/k4cg/matomat-service/maas-server/auth"
+	"strings"
 )
 
 const HEADER_AUTHORIZATION_KEY = "Authorization"
@@ -17,8 +18,10 @@ const CONTEXT_AUTHTOKENCLAIMS_USERID_KEY = "03u5rsx_dlFfh9sw"
 
 func AuthenticationMiddleware(auth auth.AuthInterface, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		bearerToken := req.Header.Get(HEADER_AUTHORIZATION_KEY)
-		if bearerToken != "" {
+		bearerTokenHeaderString := req.Header.Get(HEADER_AUTHORIZATION_KEY)
+		bearerToken, _ := extractBearerToken(bearerTokenHeaderString)
+
+		if len(bearerToken) > 0 {
 			authTokenClaims, err := auth.VerifyToken(bearerToken)
 			if err != nil {
 				w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
@@ -38,6 +41,20 @@ func AuthenticationMiddleware(auth auth.AuthInterface, next http.HandlerFunc) ht
 			return
 		}
 	})
+}
+
+func extractBearerToken(bearerTokenHeaderString string) (string, error) {
+	var bearerToken string
+	var err error
+
+	bearerTokenHeaderStringAr := strings.Fields(bearerTokenHeaderString)
+	if len(bearerTokenHeaderStringAr) == 2 && strings.EqualFold(bearerTokenHeaderStringAr[0], "Bearer") {
+		bearerToken = bearerTokenHeaderStringAr[1]
+	} else {
+		err = errors.New(ERROR_AUTHMIDDLEWARE_INVALID_AUTHORIZATION_DATA)
+	}
+
+	return bearerToken, err
 }
 
 func getUserIDFromContext(req *http.Request) (uint32, error) {
