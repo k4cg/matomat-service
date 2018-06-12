@@ -18,7 +18,7 @@ Another alternative would be to use [Swagger Code Editor](https://editor.swagger
 ## Authentication concept
 A client authenticates to the service by passing a username and password (as well as a validity time in seconds) to the server.
 The server then returns a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) token that is valid for the requested amount of seconds (or it this was not given, for the configured server default).
-This [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) token has to be passed using an `Authorization` header alongside any other service request.
+This [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) token has to be passed using an `Authorization` header alongside any other service request (Using the "Bearer token" concept).
 
 ### What about RFID/NFC chip based "login"
 This functionality has to be implemented by the client. The client would have to offer a enroll functionality during which the user enters her credentials.
