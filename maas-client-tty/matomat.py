@@ -8,27 +8,38 @@ class MaaSConfig:
         self.host = host
         self.verify_ssl = verify_ssl
 
-class MaaS:
+class MaaSApiClientBuilder:
     def __init__(self, config: MaaSConfig):
         super().__init__()
-        self._api_client = self.build_api_client(config)
-
-    def build_api_client(self, config: MaaSConfig):
-        # create an configuration for the general API client
-        api_client_config = swagger_client.Configuration()
-        api_client_config.host = config.host
-        api_client_config.verify_ssl = config.verify_ssl
-
-        # create an instance of the general API client
-        return swagger_client.ApiClient(api_client_config)
+        self._maas_config = config
 
     def build_auth_api_client(self):
         # create an instance of the API class
-        return swagger_client.AuthApi(self._api_client)
+        return swagger_client.AuthApi(swagger_client.ApiClient(self.build_config()))
 
-    def build_items_client(self):
-        return swagger_client.ItemsApi(self._api_client)
+    def build_items_client(self, token):
+        return swagger_client.ItemsApi(swagger_client.ApiClient(self.build_config_with_token(token)))
 
+    def build_config(self):
+        # create an configuration for the general API client
+        api_client_config = swagger_client.Configuration()
+        api_client_config.host = self._maas_config.host
+        api_client_config.verify_ssl = self._maas_config.verify_ssl
+
+        return api_client_config
+
+    def build_config_with_token(self, token):
+        api_client_config = swagger_client.Configuration()
+        api_client_config.host = self._maas_config.host
+        api_client_config.verify_ssl = self._maas_config.verify_ssl
+        api_client_config.api_key = {
+            'Authorization': token
+        }
+        api_client_config.api_key_prefix = {
+            'Authorization': 'Bearer'
+        }
+
+        return api_client_config
 
 #class MatomatApp(npyscreen.NPSAppManaged):
 
@@ -40,12 +51,12 @@ class MaaS:
 if __name__ == '__main__':
     maas_cfg = MaaSConfig("https://localhost:8443/v0",
                           False)  # Do not do this for production use, only required to make it work with self signed certificates
-    maas = MaaS(maas_cfg)
-    auth_client = maas.build_auth_api_client()
+    maas_builder = MaaSApiClientBuilder(maas_cfg)
+    auth_client = maas_builder.build_auth_api_client()
     auth_response = auth_client.auth_login_post("admin", "admin")  # type: AuthSuccess
     token = auth_response.token
-    items_client = maas.build_items_client()
-    items_client.items_post("mate", 100, token=token)
-    items_client.items
+    items_client = maas_builder.build_items_client(token)
+    response = items_client.items_post("mate", 100)
     #myApp = MatomatApp()
     #myApp.run()
+    print(response)
