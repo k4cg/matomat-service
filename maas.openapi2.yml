@@ -22,12 +22,12 @@ paths:
       summary: Logs a user in and returns an JWT token for authentication
       description: Logs a user in and returns an JWT token for authentication. The passes along validitiyseconds determine how long the token should be available.
       consumes:
-        - application/x-www-form-urlencoded      
+        - application/x-www-form-urlencoded
       parameters:
         - in: formData
           name: username
           type: string
-          required: true 
+          required: true
         - in: formData
           name: password
           type: string
@@ -35,7 +35,7 @@ paths:
         - in: formData
           name: validityseconds
           type: integer
-          minimum: 0          
+          minimum: 0
       responses:
         200:
           description: Success
@@ -72,14 +72,14 @@ paths:
       summary: Add a new item
       description: Adds a new item to matomat. This can only be done by admins
       consumes:
-        - application/x-www-form-urlencoded      
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
         - in: formData
           name: name
           type: string
-          required: true 
+          required: true
         - in: formData
           name: cost
           type: integer
@@ -103,7 +103,7 @@ paths:
       summary: Get consumption stats of all items
       description: Get the matomat stats for all items
       produces:
-        - application/json      
+        - application/json
       responses:
         200:
           description: Success
@@ -130,17 +130,17 @@ paths:
       summary: Get a certain Item
       description: Get a certain Item
       produces:
-        - application/json      
+        - application/json
       responses:
         200:
           description: successful operation
-          schema:          
+          schema:
             $ref: '#/definitions/Item'
         default:
           description: An error occured
           schema:
             $ref: '#/definitions/Error'
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -148,23 +148,23 @@ paths:
       summary: Update Item
       description: Update Item. This can only be done by admins
       consumes:
-        - application/x-www-form-urlencoded      
+        - application/x-www-form-urlencoded
       produces:
-        - application/json      
+        - application/json
       parameters:
         - in: formData
           name: name
           type: string
-          required: true 
+          required: true
         - in: formData
           name: cost
           type: integer
           minimum: 0
-          required: true        
+          required: true
       responses:
         200:
           description: Success
-          schema:          
+          schema:
             $ref: '#/definitions/Item'
         default:
           description: An error occured
@@ -178,18 +178,18 @@ paths:
       summary: Delete Item
       description: Delete the Item. This can only be done by admins. (Should only mark a Item as deleted to not loose reference for stats)
       produces:
-        - application/json      
+        - application/json
       responses:
         200:
           description: Success. Returns the deleted item object
-          schema:          
+          schema:
             $ref: '#/definitions/Item'
         default:
           description: An error occured
           schema:
             $ref: '#/definitions/Error'
   /items/{itemId}/consume:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -197,7 +197,7 @@ paths:
       summary: Consumes a Item
       description: Consumes a Item and subtracts the cost of the Item from the credit of the user. If not enough credit exists the operation will be rejected
       produces:
-        - application/json      
+        - application/json
       parameters:
         - in: path
           name: itemId
@@ -207,7 +207,7 @@ paths:
       responses:
         200:
           description: Success
-          schema:          
+          schema:
             $ref: '#/definitions/ItemStats'
         412:
           description: Not enough credits to consume Item
@@ -226,7 +226,7 @@ paths:
       summary: Get consumption stats
       description: Get the matomat stats for a certain Item
       produces:
-        - application/json      
+        - application/json
       parameters:
         - in: path
           name: itemId
@@ -271,14 +271,14 @@ paths:
       summary: Add a new user
       description: Add a new user. Only admin users are allowed to do this. If "admin" is greater than 0, the new user will be created as admin user.
       consumes:
-        - application/x-www-form-urlencoded      
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
         - in: formData
           name: name
           type: string
-          required: true 
+          required: true
         - in: formData
           name: password
           type: string
@@ -344,7 +344,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/credits/add:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -352,7 +352,7 @@ paths:
       summary: Add users credits
       description: Add users credits. This can only be done by the logged in user
       consumes:
-        - application/x-www-form-urlencoded      
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
@@ -365,7 +365,7 @@ paths:
           name: credits
           type: integer
           minimum: 0
-          required: true     
+          required: true
       responses:
         200:
           description: Success
@@ -376,7 +376,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/credits/withdraw:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -404,7 +404,7 @@ paths:
           schema:
             $ref: '#/definitions/User'
         412:
-          description: Not enough credits to withdraw desired amount      
+          description: Not enough credits to withdraw desired amount
           schema:
             $ref: '#/definitions/Error'
         default:
@@ -412,7 +412,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/credits/transfer:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -420,7 +420,7 @@ paths:
       summary: Transfer credits
       description: Transfers credits from logged in user to given user
       consumes:
-        - application/x-www-form-urlencoded      
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
@@ -473,7 +473,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/password:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -497,7 +497,7 @@ paths:
         - in: formData
           name: passwordnew
           type: string
-          required: true          
+          required: true
         - in: formData
           name: passwordrepeat
           type: string
@@ -512,7 +512,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /users/{userId}/resetpassword:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -532,7 +532,7 @@ paths:
         - in: formData
           name: passwordnew
           type: string
-          required: true          
+          required: true
         - in: formData
           name: passwordrepeat
           type: string
@@ -552,7 +552,7 @@ paths:
       - jwtTokenAuth: []
       tags:
       - service
-      summary: Total service stats 
+      summary: Total service stats
       description: Total service stats
       produces:
         - application/json
@@ -580,7 +580,7 @@ definitions:
         type: integer
         format: int32
       user:
-        $ref: '#/definitions/User'   
+        $ref: '#/definitions/User'
   User:
     type: object
     properties:
@@ -616,7 +616,7 @@ definitions:
         type: integer
         format: int32
       name:
-        type: string          
+        type: string
       cost:
         type: integer
         format: int32
@@ -662,7 +662,7 @@ definitions:
         properties:
           count:
             type: integer
-            format: int32                
+            format: int32
           credits:
             type: object
             properties:
