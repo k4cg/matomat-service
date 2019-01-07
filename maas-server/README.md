@@ -26,6 +26,12 @@ Use `admin` with password `admin` for initial login. Create new user and delete 
 ## Shutting down the server
 Send a SIGTERM or SIGINT, server will then shutdown after a grace period configured in `config.yml`.
 
+## Local testing
+Easy creation of a self signed certificate for local TESTING.
+```
+go run $GOROOT/src/crypto/tls/generate_cert.go --rsa-bits 4096 --host 127.0.0.1,::1,localhost --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
+```
+
 ## Reference Links
 [awesome-go](https://github.com/avelino/awesome-go)
 [config](https://github.com/olebedev/config)
