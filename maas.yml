@@ -248,7 +248,7 @@ paths:
       tags:
       - items
       summary: Consumes a Item
-      description: Consumes a Item and subtracts the cost of the Item from the credit of the user. If not enough credit exists the operation will be rejected
+      description: Consumes a Item and subtracts the cost of the Item from the credit of the user. 
       parameters:
       - in: path
         name: itemId
@@ -264,12 +264,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ItemStats'
-        412:
-          description: Not enough credits to consume Item
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         default:
           description: An error occured
           content:
@@ -556,12 +550,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransferredCredits'
-        412:
-          description: Not enough credits to transfer desired amount
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         default:
           description: An error occured
           content:
