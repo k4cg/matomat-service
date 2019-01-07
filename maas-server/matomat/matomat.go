@@ -94,17 +94,21 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 			user, err := m.userRepo.Get(userID)
 			if err == nil {
 				if user != (users.User{}) {
-					remainingCredits = user.Credits - item.Cost
-					user.Credits = remainingCredits
-					m.userRepo.Save(user)
-					go m.itemStatsRepo.CountConsumption(item.ID, 1)
-					go m.userItemsStatsRepo.CountConsumption(userID, item.ID, 1)
-					go m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
-					itemStats, err := m.itemStatsRepo.Get(itemID)
-					if err == nil {
-						itemStatsToReturn = itemStats
+					if user.Credits >= item.Cost || m.config.AllowCreditDebt {
+						remainingCredits = user.Credits - item.Cost
+						user.Credits = remainingCredits
+						m.userRepo.Save(user)
+						go m.itemStatsRepo.CountConsumption(item.ID, 1)
+						go m.userItemsStatsRepo.CountConsumption(userID, item.ID, 1)
+						go m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
+						itemStats, err := m.itemStatsRepo.Get(itemID)
+						if err == nil {
+							itemStatsToReturn = itemStats
+						} else {
+							retErr = err
+						}
 					} else {
-						retErr = err
+						retErr = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
 					}
 				} else {
 					retErr = errors.New(ERROR_UNKNOWN_USER)
@@ -136,24 +140,28 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 				toUser, err := m.userRepo.Get(toUserID)
 				if err == nil {
 					if toUser != (users.User{}) {
-						//yes this is not "transaction save" ... feel free to improve :-P ... e.g. move to a separate repo call
-						fromUser.Credits = fromUser.Credits - amount
-						toUser.Credits = toUser.Credits + amount
-						fromUser, err = m.userRepo.Save(fromUser)
-						if err == nil {
-							toUser, err = m.userRepo.Save(toUser)
-							if err != nil {
-								//"ROLLBACK"
-								fromUser.Credits = oldFromCredits
-								fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
-								retErr = err
+						if fromUser.Credits >= amount || m.config.AllowCreditDebt {
+							//yes this is not "transaction save" ... feel free to improve :-P ... e.g. move to a separate repo call
+							fromUser.Credits = fromUser.Credits - amount
+							toUser.Credits = toUser.Credits + amount
+							fromUser, err = m.userRepo.Save(fromUser)
+							if err == nil {
+								toUser, err = m.userRepo.Save(toUser)
+								if err != nil {
+									//"ROLLBACK"
+									fromUser.Credits = oldFromCredits
+									fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
+									retErr = err
+								} else {
+									transferredAmount = amount
+								}
 							} else {
-								transferredAmount = amount
+								retErr = err
 							}
+							senderToReturn = fromUser
 						} else {
-							retErr = err
+							retErr = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
 						}
-						senderToReturn = fromUser
 					} else {
 						retErr = errors.New(ERROR_UNKNOWN_USER_TO)
 					}
