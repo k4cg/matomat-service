@@ -202,15 +202,19 @@ func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item
 	var returnedItem items.Item
 	var retErr error
 	if cost >= 0 {
-		item, err := m.itemRepo.Get(itemID)
-		if err == nil && item != (items.Item{}) {
-			item.Name = name
-			item.Cost = uint32(cost) //TODO those "blind" uint32 casts should probably be handled better...
-			item, err = m.itemRepo.Save(item)
-			returnedItem = item
-			retErr = err
+		if len(name) >= m.config.ItemNameMinLength && len(name) <= m.config.ItemNameMaxLength {
+			item, err := m.itemRepo.Get(itemID)
+			if err == nil && item != (items.Item{}) {
+				item.Name = name
+				item.Cost = uint32(cost) //TODO those "blind" uint32 casts should probably be handled better...
+				item, err = m.itemRepo.Save(item)
+				returnedItem = item
+				retErr = err
+			} else {
+				retErr = errors.New(ERROR_UNKNOWN_ITEM)
+			}
 		} else {
-			retErr = errors.New(ERROR_UNKNOWN_ITEM)
+			retErr = errors.New(ERROR_ITEMS_NAME_LENGTH_OUT_OF_BOUNDS + ": min length " + strconv.Itoa(m.config.ItemNameMinLength) + ", max length " + strconv.Itoa(m.config.ItemNameMaxLength))
 		}
 	} else {
 		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
