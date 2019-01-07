@@ -49,7 +49,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AuthSuccess'          
+                  $ref: '#/components/schemas/AuthSuccess'
         400:
           description: Invalid username/password supplied
   /items:
@@ -100,7 +100,7 @@ paths:
                   minimum: 0
               required:
                 - name
-                - cost              
+                - cost
       responses:
         201:
           description: Created
@@ -158,7 +158,7 @@ paths:
           description: successful operation
           content:
             application/json:
-              schema:          
+              schema:
                 $ref: '#/components/schemas/Item'
         default:
           description: An error occured
@@ -166,7 +166,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -199,13 +199,13 @@ paths:
                   minimum: 0
               required:
                 - name
-                - cost 
+                - cost
       responses:
         200:
           description: Success
           content:
             application/json:
-              schema:          
+              schema:
                 $ref: '#/components/schemas/Item'
         default:
           description: An error occured
@@ -233,7 +233,7 @@ paths:
           description: Success. Returns the deleted item object
           content:
             application/json:
-              schema:          
+              schema:
                 $ref: '#/components/schemas/Item'
         default:
           description: An error occured
@@ -242,7 +242,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /items/{itemId}/consume:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -262,12 +262,12 @@ paths:
           description: Success
           content:
             application/json:
-              schema:          
+              schema:
                 $ref: '#/components/schemas/ItemStats'
         412:
           description: Not enough credits to consume Item
           content:
-            application/json:          
+            application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         default:
@@ -280,7 +280,7 @@ paths:
     get:
       security:
       - jwtTokenAuth: []
-      tags:      
+      tags:
       - items
       summary: Get consumption stats
       description: Get the matomat stats for a certain Item
@@ -428,7 +428,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/add:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -510,7 +510,7 @@ paths:
         412:
           description: Not enough credits to withdraw desired amount
           content:
-            application/json:          
+            application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         default:
@@ -520,7 +520,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/credits/transfer:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -548,7 +548,7 @@ paths:
                   format: int32
                   minimum: 0
               required:
-                - credits        
+                - credits
       responses:
         200:
           description: Success
@@ -559,7 +559,7 @@ paths:
         412:
           description: Not enough credits to transfer desired amount
           content:
-            application/json:          
+            application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         default:
@@ -598,7 +598,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/password:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -645,7 +645,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{userId}/resetpassword:
-    patch:
+    put:
       security:
       - jwtTokenAuth: []
       tags:
@@ -694,7 +694,7 @@ paths:
       - jwtTokenAuth: []
       tags:
       - service
-      summary: Total service stats 
+      summary: Total service stats
       description: Total service stats
       responses:
         200:
@@ -761,7 +761,7 @@ components:
           type: integer
           format: int32
         name:
-          type: string          
+          type: string
         cost:
           type: integer
           format: int32
@@ -807,7 +807,7 @@ components:
           properties:
             count:
               type: integer
-              format: int32                
+              format: int32
             credits:
               type: object
               properties:
