@@ -8,17 +8,14 @@ a RESTful service. This service then can be consumed by any client.
 - `maas-client-tty` (will/should) contain a client implementation that can be
   run on tty
 - `maas-server` contains the service server implementation
-- `maas.openapi2.yml` contains the service API definition in OpenAPI 2.0
-  format
 - `maas.yml` contains the service API definition in OpenAPI 3.0 format
 
 ## API definition
-See `maas.yml` / `maas.openapi2.yml`.
+See `maas.yml`.
 
 ## Easy testing of the API
 Use a tool like [Postman](https://www.getpostman.com/) and import the API
-definition file (Currently only OpenAPI 2.0 is supported by Postman so use
-`maas.openapi2.yml`). Another alternative would be to use [Swagger Code
+definition file. Another alternative would be to use [Swagger Code
 Editor](https://editor.swagger.io//#/), import and then use the
 "Authorize/Execute/Test" functionality.
 
