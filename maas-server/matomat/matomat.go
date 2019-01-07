@@ -2,6 +2,7 @@ package matomat
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/k4cg/matomat-service/maas-server/items"
 	"github.com/k4cg/matomat-service/maas-server/users"
@@ -45,6 +46,7 @@ const ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER string = "User to transfer credits 
 const ERROR_TRANSFER_UNKOWN_CREDITS_SENDER string = "User to transfer credits from unknown"
 const ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS string = "Not enough credits. Cannot withdraw more credits than the current balance"
 const ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED string = "Only credit amounts greater or equal to zero allowed"
+const ERROR_ITEMS_NAME_LENGTH_OUT_OF_BOUNDS string = "Item name length out of allowed bounds"
 const ERROR_UNKNOWN_ITEM string = "Unkown item"
 const ERROR_UNKNOWN_USER string = "Unkown user"
 const ERROR_UNKNOWN_USER_FROM string = "Unkown receiving user"
@@ -182,10 +184,14 @@ func (m *Matomat) ItemCreate(name string, cost int32) (items.Item, error) {
 	var retItem items.Item
 	var retErr error
 	if cost >= 0 {
-		item := items.Item{Name: name, Cost: uint32(cost)} //TODO those "blind" uint32 casts should probably be handled better...
-		item, err := m.itemRepo.Save(item)
-		retItem = item
-		retErr = err
+		if len(name) >= m.config.ItemNameMinLength && len(name) <= m.config.ItemNameMaxLength {
+			item := items.Item{Name: name, Cost: uint32(cost)} //TODO those "blind" uint32 casts should probably be handled better...
+			item, err := m.itemRepo.Save(item)
+			retItem = item
+			retErr = err
+		} else {
+			retErr = errors.New(ERROR_ITEMS_NAME_LENGTH_OUT_OF_BOUNDS + ": min length " + strconv.Itoa(m.config.ItemNameMinLength) + ", max length " + strconv.Itoa(m.config.ItemNameMaxLength))
+		}
 	} else {
 		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
