@@ -83,6 +83,23 @@ func (m *Matomat) IsAllowed(userID uint32, action string) bool {
 	return allowed
 }
 
+func (m *Matomat) IsAllowedForSelfOrByAdmin(loginUserID uint32, targetUserId uint32) bool {
+	allowed := false
+
+	if loginUserID == targetUserId {
+		allowed = true
+	} else {
+		loginUser, err := m.userRepo.Get(loginUserID)
+		if err == nil {
+			if loginUser != (users.User{}) {
+				allowed = loginUser.IsAdmin()
+			}
+		} //if user is not found (or any error occurs) => access is forbidden
+	}
+
+	return allowed
+}
+
 func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.ItemStats, error) {
 	var remainingCredits uint32
 	var itemStatsToReturn items.ItemStats
