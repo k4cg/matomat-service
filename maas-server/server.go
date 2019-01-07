@@ -37,7 +37,8 @@ func main() {
 		users := buildUsers(cfg, userRepo)
 
 		eventDispatcherMqtt := buildEventDispatcher(cfg)
-		matomat := matomat.NewMatomat(eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
+		matomatConfig := buildMatomatConfig(cfg)
+		matomat := matomat.NewMatomat(*matomatConfig, eventDispatcherMqtt, userRepo, itemRepo, itemStatsRepo, userItemStatsRepo)
 
 		authApiHandler, usersApiHandler, itemsApiHandler, serviceApiHandler := buildApiHandlers(auth, users, matomat)
 
@@ -108,6 +109,14 @@ func buildEventDispatcher(cfg *config.Config) matomat.EventDispatcherInterface {
 	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic, enabled)
 }
 
+func buildMatomatConfig(cfg *config.Config) *matomat.Config {
+	//TODO add error handling / checking on config value retrieval
+	allowDebt, _ := cfg.Bool("application.credit.allow_debt")
+	itemNameMinLength, _ := cfg.Int("application.item.name_min_length")
+	itemNameMaxLength, _ := cfg.Int("application.item.name_max_length")
+	return matomat.NewConfig(allowDebt, uint32(itemNameMinLength), uint32(itemNameMaxLength))
+}
+
 func runServer(cfg *config.Config, router *mux.Router) error {
 	//TODO add error handling / checking on config value retrieval
 	addr, _ := cfg.String("listen.addr")
@@ -133,7 +142,6 @@ func runServer(cfg *config.Config, router *mux.Router) error {
 	}
 
 	//prepare CORS setup
-	//TODO make this configurable using the config
 	allowedHeaders := handlers.AllowedHeaders(sheaders)
 	allowedOrigins := handlers.AllowedOrigins(sorigins)
 	allowedMethods := handlers.AllowedMethods(smethods)

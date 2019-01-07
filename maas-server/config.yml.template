@@ -1,5 +1,11 @@
 general:
   shutdown_graceperiod_seconds: 2
+application:
+  item:
+    name_min_length: 3
+    name_max_length: 32
+  credit:
+    allow_debt: true
 listen:
   addr: <ADDR TO LISTEN ON> 
   port: 8443
