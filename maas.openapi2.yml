@@ -346,7 +346,7 @@ paths:
       tags:
       - users
       summary: Add users credits
-      description: Add users credits. This can only be done by the logged in user
+      description: Add users credits. This can only be done by the logged in user or a admin.
       consumes:
         - application/x-www-form-urlencoded
       produces:
@@ -378,7 +378,7 @@ paths:
       tags:
       - users
       summary: Widthdraw users credits
-      description: Widthdraw users credits. A user can only withdraw as many credits as she currently has, if more than available are attempted to withdraw, an error is returned and no withdrawl performed. This can only be done by the logged in user
+      description: Widthdraw users credits. A user can only withdraw as many credits as she currently has, if more than available are attempted to withdraw, an error is returned and no withdrawl performed. This can only be done by the logged in user or a admin.
       consumes:
         - application/x-www-form-urlencoded
       produces:

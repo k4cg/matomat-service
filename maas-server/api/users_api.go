@@ -187,7 +187,7 @@ func (uah *UsersApiHandler) UsersUseridCreditsAddPut(w http.ResponseWriter, r *h
 
 	if err == nil {
 		userID, err := extractIDFromModelGet(r.URL.Path)
-		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_ADD) && loginUserID == userID {
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_ADD) && uah.matomat.IsAllowedForSelfOrByAdmin(loginUserID, userID) {
 			credits, err := extractUserCreditsChangeData(r)
 			if err == nil {
 				user, err := uah.matomat.UserCreditsAdd(userID, credits)
@@ -215,7 +215,7 @@ func (uah *UsersApiHandler) UsersUseridCreditsWithdrawPut(w http.ResponseWriter,
 
 	if err == nil {
 		userID, err := extractIDFromModelGet(r.URL.Path)
-		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_WITHDRAW) && loginUserID == userID {
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_CREDITS_WITHDRAW) && uah.matomat.IsAllowedForSelfOrByAdmin(loginUserID, userID) {
 			credits, err := extractUserCreditsChangeData(r)
 			if err == nil {
 				user, err := uah.matomat.UserCreditsWithdraw(userID, credits)
