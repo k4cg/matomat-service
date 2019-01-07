@@ -91,21 +91,17 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 			user, err := m.userRepo.Get(userID)
 			if err == nil {
 				if user != (users.User{}) {
-					if user.Credits >= item.Cost {
-						remainingCredits = user.Credits - item.Cost
-						user.Credits = remainingCredits
-						m.userRepo.Save(user)
-						go m.itemStatsRepo.CountConsumption(item.ID, 1)
-						go m.userItemsStatsRepo.CountConsumption(userID, item.ID, 1)
-						go m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
-						itemStats, err := m.itemStatsRepo.Get(itemID)
-						if err == nil {
-							itemStatsToReturn = itemStats
-						} else {
-							retErr = err
-						}
+					remainingCredits = user.Credits - item.Cost
+					user.Credits = remainingCredits
+					m.userRepo.Save(user)
+					go m.itemStatsRepo.CountConsumption(item.ID, 1)
+					go m.userItemsStatsRepo.CountConsumption(userID, item.ID, 1)
+					go m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
+					itemStats, err := m.itemStatsRepo.Get(itemID)
+					if err == nil {
+						itemStatsToReturn = itemStats
 					} else {
-						retErr = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+						retErr = err
 					}
 				} else {
 					retErr = errors.New(ERROR_UNKNOWN_USER)
@@ -137,7 +133,6 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 				toUser, err := m.userRepo.Get(toUserID)
 				if err == nil {
 					if toUser != (users.User{}) {
-						if fromUser.Credits >= amount {
 							//yes this is not "transaction save" ... feel free to improve :-P ... e.g. move to a separate repo call
 							fromUser.Credits = fromUser.Credits - amount
 							toUser.Credits = toUser.Credits + amount
@@ -156,9 +151,6 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 								retErr = err
 							}
 							senderToReturn = fromUser
-						} else {
-							retErr = errors.New(ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS)
-						}
 					} else {
 						retErr = errors.New(ERROR_UNKNOWN_USER_TO)
 					}
