@@ -8,6 +8,7 @@ import (
 )
 
 type Matomat struct {
+	config             Config
 	eventDispatcher    EventDispatcherInterface
 	userRepo           users.UserRepositoryInterface
 	itemRepo           items.ItemRepositoryInterface
@@ -49,8 +50,8 @@ const ERROR_UNKNOWN_USER string = "Unkown user"
 const ERROR_UNKNOWN_USER_FROM string = "Unkown receiving user"
 const ERROR_UNKNOWN_USER_TO string = "Unkown receiving user"
 
-func NewMatomat(eventDispatcher EventDispatcherInterface, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
-	return &Matomat{eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo, userItemsStatsRepo: userItemsStatsRepo}
+func NewMatomat(config Config, eventDispatcher EventDispatcherInterface, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
+	return &Matomat{config: config, eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo, userItemsStatsRepo: userItemsStatsRepo}
 }
 
 func (m *Matomat) IsAllowed(userID uint32, action string) bool {
@@ -133,24 +134,24 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 				toUser, err := m.userRepo.Get(toUserID)
 				if err == nil {
 					if toUser != (users.User{}) {
-							//yes this is not "transaction save" ... feel free to improve :-P ... e.g. move to a separate repo call
-							fromUser.Credits = fromUser.Credits - amount
-							toUser.Credits = toUser.Credits + amount
-							fromUser, err = m.userRepo.Save(fromUser)
-							if err == nil {
-								toUser, err = m.userRepo.Save(toUser)
-								if err != nil {
-									//"ROLLBACK"
-									fromUser.Credits = oldFromCredits
-									fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
-									retErr = err
-								} else {
-									transferredAmount = amount
-								}
-							} else {
+						//yes this is not "transaction save" ... feel free to improve :-P ... e.g. move to a separate repo call
+						fromUser.Credits = fromUser.Credits - amount
+						toUser.Credits = toUser.Credits + amount
+						fromUser, err = m.userRepo.Save(fromUser)
+						if err == nil {
+							toUser, err = m.userRepo.Save(toUser)
+							if err != nil {
+								//"ROLLBACK"
+								fromUser.Credits = oldFromCredits
+								fromUser, err = m.userRepo.Save(fromUser) //if this does not work ... we're fucked ^^
 								retErr = err
+							} else {
+								transferredAmount = amount
 							}
-							senderToReturn = fromUser
+						} else {
+							retErr = err
+						}
+						senderToReturn = fromUser
 					} else {
 						retErr = errors.New(ERROR_UNKNOWN_USER_TO)
 					}
