@@ -2,10 +2,10 @@ package matomat
 
 type Config struct {
 	AllowCreditDebt   bool
-	ItemNameMinLength uint32
-	ItemNameMaxLength uint32
+	ItemNameMinLength int
+	ItemNameMaxLength int
 }
 
-func NewConfig(allowCreditDebt bool, itemNameMinLength uint32, itemNameMaxLength uint32) *Config {
+func NewConfig(allowCreditDebt bool, itemNameMinLength int, itemNameMaxLength int) *Config {
 	return &Config{AllowCreditDebt: allowCreditDebt, ItemNameMinLength: itemNameMinLength, ItemNameMaxLength: itemNameMaxLength}
 }

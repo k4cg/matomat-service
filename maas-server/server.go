@@ -114,7 +114,7 @@ func buildMatomatConfig(cfg *config.Config) *matomat.Config {
 	allowDebt, _ := cfg.Bool("application.credit.allow_debt")
 	itemNameMinLength, _ := cfg.Int("application.item.name_min_length")
 	itemNameMaxLength, _ := cfg.Int("application.item.name_max_length")
-	return matomat.NewConfig(allowDebt, uint32(itemNameMinLength), uint32(itemNameMaxLength))
+	return matomat.NewConfig(allowDebt, int(itemNameMinLength), int(itemNameMaxLength))
 }
 
 func runServer(cfg *config.Config, router *mux.Router) error {
