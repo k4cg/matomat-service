@@ -2,6 +2,7 @@ package matomat
 
 import (
 	"errors"
+	"log"
 	"strconv"
 
 	"github.com/k4cg/matomat-service/maas-server/items"
@@ -140,6 +141,11 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 		retErr = err
 	}
 
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
+	}
+
 	return item, itemStatsToReturn, retErr
 }
 
@@ -194,6 +200,12 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amountToTr
 	} else {
 		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
+	}
+
 	return senderToReturn, transferredAmount, retErr
 }
 
@@ -220,6 +232,12 @@ func (m *Matomat) ItemCreate(name string, cost int32) (items.Item, error) {
 	} else {
 		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
+	}
+
 	return retItem, retErr
 }
 
@@ -244,6 +262,12 @@ func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item
 	} else {
 		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)
 	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
+	}
+
 	return returnedItem, retErr
 }
 
@@ -266,6 +290,11 @@ func (m *Matomat) ItemGetStats(itemID uint32) (items.Item, items.ItemStats, erro
 		}
 	} else {
 		retErr = err
+	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
 	}
 
 	return item, itemStats, retErr
@@ -291,6 +320,11 @@ func (m *Matomat) UserCreditsAdd(userID uint32, credits int32) (users.User, erro
 		} else {
 			retErr = errors.New(ERROR_UNKNOWN_USER)
 		}
+	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
 	}
 
 	return user, retErr
@@ -319,6 +353,11 @@ func (m *Matomat) UserCreditsWithdraw(userID uint32, credits int32) (users.User,
 		}
 	} else {
 		retErr = err
+	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
 	}
 
 	return user, retErr
