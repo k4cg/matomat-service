@@ -61,7 +61,7 @@ func (r *UserRepoSqlite3) List() ([]User, error) {
 			var id uint32
 			var username string
 			var password string
-			var credits uint32
+			var credits int32
 			var adminInt uint32
 
 			rows.Scan(&id, &username, &password, &credits, &adminInt)

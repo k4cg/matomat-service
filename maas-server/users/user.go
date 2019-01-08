@@ -5,7 +5,7 @@ type User struct {
 	ID       uint32
 	Username string
 	Password string
-	Credits  uint32
+	Credits  int32
 	admin    bool
 }
 

@@ -5,7 +5,8 @@ application:
     name_min_length: 3
     name_max_length: 32
   credit:
-    allow_debt: true
+    min: -9000
+    max: 420230
 listen:
   addr: <ADDR TO LISTEN ON> 
   port: 8443
