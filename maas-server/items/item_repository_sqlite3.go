@@ -44,7 +44,7 @@ func (r *ItemRepoSqlite3) List() ([]Item, error) {
 		for rows.Next() {
 			var id uint32
 			var name string
-			var cost uint32
+			var cost int32
 			rows.Scan(&id, &name, &cost)
 			items = append(items, Item{ID: id, Name: name, Cost: cost})
 		}

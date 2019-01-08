@@ -18,16 +18,16 @@ func newUser(user users.User) User {
 type User struct {
 	ID       uint32 `json:"id"`
 	Username string `json:"username"`
-	Credits  uint32 `json:"credits"`
+	Credits  int32  `json:"credits"`
 	Admin    bool   `json:"admin"`
 }
 
 type TransferredCredits struct {
-	Sender  User   `json:"sender"`
-	Credits uint32 `json:"credits"`
+	Sender  User  `json:"sender"`
+	Credits int32 `json:"credits"`
 }
 
-func newTransferredCredits(fromUser users.User, transferredCreditsAmount uint32) TransferredCredits {
+func newTransferredCredits(fromUser users.User, transferredCreditsAmount int32) TransferredCredits {
 	return TransferredCredits{Sender: newUser(fromUser), Credits: transferredCreditsAmount}
 }
 
@@ -35,7 +35,7 @@ func newTransferredCredits(fromUser users.User, transferredCreditsAmount uint32)
 type Item struct {
 	ID   uint32 `json:"id"`
 	Name string `json:"name"`
-	Cost uint32 `json:"cost"`
+	Cost int32  `json:"cost"`
 }
 
 func newItem(item items.Item) Item {
@@ -45,7 +45,7 @@ func newItem(item items.Item) Item {
 type ItemStats struct {
 	ID       uint32 `json:"id"`
 	Name     string `json:"name"`
-	Cost     uint32 `json:"cost"`
+	Cost     int32  `json:"cost"`
 	Consumed uint32 `json:"consumed"`
 }
 
@@ -74,9 +74,9 @@ type ItemsServiceStats struct {
 }
 
 type ItemsCostServiceStats struct {
-	Avg uint32 `json:"avg"`
-	Min uint32 `json:"min"`
-	Max uint32 `json:"max"`
+	Avg int32 `json:"avg"`
+	Min int32 `json:"min"`
+	Max int32 `json:"max"`
 }
 
 type UsersServiceStats struct {
@@ -85,10 +85,10 @@ type UsersServiceStats struct {
 }
 
 type UsersCreditsServiceStats struct {
-	Sum uint32 `json:"sum"`
-	Avg uint32 `json:"avg"`
-	Min uint32 `json:"min"`
-	Max uint32 `json:"max"`
+	Sum int32 `json:"sum"`
+	Avg int32 `json:"avg"`
+	Min int32 `json:"min"`
+	Max int32 `json:"max"`
 }
 
 func newServiceStats(stats *matomat.ServiceStats) *ServiceStats {

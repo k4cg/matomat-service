@@ -16,9 +16,9 @@ type ItemsServiceStats struct {
 }
 
 type ItemsCostServiceStats struct {
-	Avg uint32
-	Min uint32
-	Max uint32
+	Avg int32
+	Min int32
+	Max int32
 }
 
 type UsersServiceStats struct {
@@ -27,10 +27,10 @@ type UsersServiceStats struct {
 }
 
 type UsersCreditsServiceStats struct {
-	Sum uint32
-	Avg uint32
-	Min uint32
-	Max uint32
+	Sum int32
+	Avg int32
+	Min int32
+	Max int32
 }
 
 func (m *Matomat) ServiceStatsGet() (*ServiceStats, error) {
@@ -48,9 +48,10 @@ func (m *Matomat) ServiceStatsGet() (*ServiceStats, error) {
 }
 
 func (m *Matomat) getItemsCostServiceStats(items []items.Item) *ItemsCostServiceStats {
+	var avg int32
 	sum := 0
-	min := ^uint32(0)
-	max := uint32(0)
+	min := ^int32(0)
+	max := int32(0)
 
 	for _, item := range items {
 		sum += int(item.Cost)
@@ -62,15 +63,19 @@ func (m *Matomat) getItemsCostServiceStats(items []items.Item) *ItemsCostService
 		}
 	}
 
-	avg := uint32(sum / len(items)) //another evil cast AND this is cut off, so average is only credit unit exact
+	avg = 0
+	if len(items) > 0 {
+		avg = int32(sum / len(items)) //another evil cast AND this is cut off, so average is only credit unit exact
+	}
 
 	return &ItemsCostServiceStats{Avg: avg, Min: min, Max: max}
 }
 
 func (m *Matomat) getUsersCreditsServiceStats(users []users.User) *UsersCreditsServiceStats {
+	var avg int32
 	sum := 0
-	min := ^uint32(0)
-	max := uint32(0)
+	min := ^int32(0)
+	max := int32(0)
 
 	for _, user := range users {
 		sum += int(user.Credits)
@@ -82,7 +87,10 @@ func (m *Matomat) getUsersCreditsServiceStats(users []users.User) *UsersCreditsS
 		}
 	}
 
-	avg := uint32(sum / len(users)) //another evil cast AND this is cut off, so average is only credit unit exact
+	avg = 0
+	if len(users) > 0 {
+		avg = int32(sum / len(users)) //another evil cast AND this is cut off, so average is only credit unit exact
+	}
 
-	return &UsersCreditsServiceStats{Sum: uint32(sum), Avg: avg, Min: min, Max: max}
+	return &UsersCreditsServiceStats{Sum: int32(sum), Avg: avg, Min: min, Max: max}
 }

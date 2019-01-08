@@ -21,7 +21,7 @@ func NewEventDispatcherMqtt(connectionString string, clientID string, topic stri
 }
 
 //TODO should the username be passed in????
-func (ed *EventDispatcherMqtt) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost uint32) error {
+func (ed *EventDispatcherMqtt) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost int32) error {
 	var err error
 	if !ed.enabled {
 		return err
@@ -40,7 +40,7 @@ func (ed *EventDispatcherMqtt) ItemConsumed(userID uint32, username string, item
 	return err
 }
 
-func buildItemConsumedMessage(userID uint32, username string, itemID uint32, itemName string, itemCost uint32) string {
+func buildItemConsumedMessage(userID uint32, username string, itemID uint32, itemName string, itemCost int32) string {
 	message := "matomat;item-consumed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) //TODO implement proper message format
 	return message
 }

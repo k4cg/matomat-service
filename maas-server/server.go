@@ -111,10 +111,11 @@ func buildEventDispatcher(cfg *config.Config) matomat.EventDispatcherInterface {
 
 func buildMatomatConfig(cfg *config.Config) *matomat.Config {
 	//TODO add error handling / checking on config value retrieval
-	allowDebt, _ := cfg.Bool("application.credit.allow_debt")
+	creditMin, _ := cfg.Int("application.credit.min")
+	creditMax, _ := cfg.Int("application.credit.max")
 	itemNameMinLength, _ := cfg.Int("application.item.name_min_length")
 	itemNameMaxLength, _ := cfg.Int("application.item.name_max_length")
-	return matomat.NewConfig(allowDebt, int(itemNameMinLength), int(itemNameMaxLength))
+	return matomat.NewConfig(int32(creditMin), int32(creditMax), int(itemNameMinLength), int(itemNameMaxLength))
 }
 
 func runServer(cfg *config.Config, router *mux.Router) error {
