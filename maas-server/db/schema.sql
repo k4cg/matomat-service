@@ -19,6 +19,13 @@ CREATE TABLE `user_items_stats` (
 	`itemID` INTEGER NOT NULL,
 	`consumed` INTEGER NOT NULL
 );
+CREATE TABLE `user_items_stats` (
+  `userID`INTEGER,
+  `itemID` INTEGER not null,
+  `consumed` INTEGER not null,
+  constraint user_items_stats_pk
+  primary key (userID, itemID)
+);
 CREATE TABLE `users` (
 	`ID` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`username` VARCHAR(256) NOT NULL,
