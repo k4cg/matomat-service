@@ -105,8 +105,10 @@ func buildEventDispatcher(cfg *config.Config) matomat.EventDispatcherInterface {
 	clientID, _ := cfg.String("event_dispatching.mqtt.client_id")
 	connectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
 	topic, _ := cfg.String("event_dispatching.mqtt.topic")
+	username, _ := cfg.String("event_dispatching.mqtt.username")
+	password, _ := cfg.String("event_dispatching.mqtt.password")
 	enabled, _ := cfg.Bool("event_dispatching.enabled")
-	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic, enabled)
+	return matomat.NewEventDispatcherMqtt(connectionString, clientID, topic, enabled, username, password)
 }
 
 func buildMatomatConfig(cfg *config.Config) *matomat.Config {
