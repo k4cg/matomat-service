@@ -14,9 +14,13 @@ type EventDispatcherMqtt struct {
 	client           MQTT.Client
 }
 
-func NewEventDispatcherMqtt(connectionString string, clientID string, topic string, enabled bool) *EventDispatcherMqtt {
+func NewEventDispatcherMqtt(connectionString string, clientID string, topic string, enabled bool, username string, password string) *EventDispatcherMqtt {
 	opts := MQTT.NewClientOptions().AddBroker(connectionString) //connectionString example: "tcp://localhost:4242"
 	opts.SetClientID(clientID)                                  //clientID example: "matomat-server"
+	if len(username) > 0 {
+		opts.SetUsername(username)
+		opts.SetPassword(password)
+	}
 	return &EventDispatcherMqtt{connectionString: connectionString, clientID: clientID, topic: topic, client: MQTT.NewClient(opts), enabled: enabled}
 }
 
