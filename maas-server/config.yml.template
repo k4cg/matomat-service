@@ -39,3 +39,5 @@ event_dispatching:
     client_id: matomat-server
     connection_string: <CONNECTION STRING, EXAMPLE: tcp://localhost:4242>
     topic: <NAME OF THE MQTT TOPIC, EXAMPLE: matomat>
+    username: <USERNAME FOR MQTT BROKER>
+    password: <PASSWORD FOR MQTT BROKER>

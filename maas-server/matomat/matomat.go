@@ -2,6 +2,7 @@ package matomat
 
 import (
 	"errors"
+	"github.com/k4cg/matomat-service/maas-server/events"
 	"log"
 	"strconv"
 
@@ -11,7 +12,7 @@ import (
 
 type Matomat struct {
 	config             Config
-	eventDispatcher    EventDispatcherInterface
+	eventDispatcher    events.EventDispatcher
 	userRepo           users.UserRepositoryInterface
 	itemRepo           items.ItemRepositoryInterface
 	itemStatsRepo      items.ItemStatsRepositoryInterface
@@ -54,7 +55,7 @@ const ERROR_UNKNOWN_USER string = "Unkown user"
 const ERROR_UNKNOWN_USER_FROM string = "Unkown receiving user"
 const ERROR_UNKNOWN_USER_TO string = "Unkown receiving user"
 
-func NewMatomat(config Config, eventDispatcher EventDispatcherInterface, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
+func NewMatomat(config Config, eventDispatcher events.EventDispatcher, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
 	return &Matomat{config: config, eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo, userItemsStatsRepo: userItemsStatsRepo}
 }
 
@@ -126,13 +127,15 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 					if m.HasEnoughCredits(user.Credits, item.Cost) {
 						remainingCredits = user.Credits - item.Cost
 						user.Credits = remainingCredits
-						m.userRepo.Save(user)
-						go m.itemStatsRepo.CountConsumption(item.ID, 1)
-						go m.userItemsStatsRepo.CountConsumption(userID, item.ID, 1)
-						go m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost)
-						itemStats, err := m.itemStatsRepo.Get(itemID)
+						_, err = m.userRepo.Save(user)
 						if err == nil {
-							itemStatsToReturn = itemStats
+							m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost, 1)
+							itemStats, err := m.itemStatsRepo.Get(itemID)
+							if err == nil {
+								itemStatsToReturn = itemStats
+							} else {
+								retErr = err
+							}
 						} else {
 							retErr = err
 						}
