@@ -1,5 +1,15 @@
 general:
   shutdown_graceperiod_seconds: 2
+webserver:
+  addr: <ADDR TO LISTEN ON>
+  port: 8443
+  ssl:
+    key: server.key.pem
+    cert: server.cert.pem
+  cors:
+    headers: ['X-Requested-With', 'Content-Type', 'Authorization']
+    origins: ['*']
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 application:
   item:
     name_min_length: 3
@@ -7,16 +17,6 @@ application:
   credit:
     min: -9000
     max: 420230
-listen:
-  addr: <ADDR TO LISTEN ON> 
-  port: 8443
-ssl:
-  key: server.key.pem
-  cert: server.cert.pem
-cors:
-  headers: ['X-Requested-With', 'Content-Type', 'Authorization']
-  origins: ['*']
-  methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 auth:
   hash:
     rounds: 10
