@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/k4cg/matomat-service/maas-server/events"
 	"log"
 	"net/http"
 	"os"
@@ -20,6 +19,7 @@ import (
 
 	"github.com/k4cg/matomat-service/maas-server/api"
 	"github.com/k4cg/matomat-service/maas-server/auth"
+	"github.com/k4cg/matomat-service/maas-server/events"
 	"github.com/k4cg/matomat-service/maas-server/items"
 	"github.com/k4cg/matomat-service/maas-server/matomat"
 	"github.com/k4cg/matomat-service/maas-server/users"
