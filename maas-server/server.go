@@ -27,6 +27,7 @@ import (
 const CONFIG_FILE_PATH = "config.yml"
 
 func main() {
+	// parse the raw configuration file
 	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
 
 	if err == nil {
