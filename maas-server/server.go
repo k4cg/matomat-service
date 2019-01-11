@@ -126,24 +126,24 @@ func buildMatomatConfig(cfg *config.Config) *matomat.Config {
 
 func buildGolangWebserverConfig(cfg *config.Config) (string, string, string, handlers.CORSOption, handlers.CORSOption, handlers.CORSOption) {
 	//TODO add error handling / checking on config value retrieval
-	addr, _ := cfg.String("listen.addr")
-	port, _ := cfg.String("listen.port")
+	addr, _ := cfg.String("webserver.addr")
+	port, _ := cfg.String("webserver.port")
 	connectionString := addr + ":" + port
-	sslServerKeyFilePath, _ := cfg.String("ssl.key")
-	sslServerCertFilePath, _ := cfg.String("ssl.cert")
+	sslServerKeyFilePath, _ := cfg.String("webserver.ssl.key")
+	sslServerCertFilePath, _ := cfg.String("webserver.ssl.cert")
 
 	//TODO factor out the for loops into separate functions, this is very bad repetetive code...
-	headers, _ := cfg.List("cors.headers")
+	headers, _ := cfg.List("webserver.cors.headers")
 	sheaders := make([]string, len(headers))
 	for i, v := range headers {
 		sheaders[i] = fmt.Sprint(v)
 	}
-	origins, _ := cfg.List("cors.origins")
+	origins, _ := cfg.List("webserver.cors.origins")
 	sorigins := make([]string, len(origins))
 	for i, v := range origins {
 		sorigins[i] = fmt.Sprint(v)
 	}
-	methods, _ := cfg.List("cors.methods")
+	methods, _ := cfg.List("webserver.cors.methods")
 	smethods := make([]string, len(methods))
 	for i, v := range methods {
 		smethods[i] = fmt.Sprint(v)
