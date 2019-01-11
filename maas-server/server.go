@@ -30,8 +30,9 @@ func main() {
 	// parse the raw configuration file
 	cfg, err := config.ParseYamlFile(CONFIG_FILE_PATH)
 
+	// only if parsing the configuration was successful, proceed
 	if err == nil {
-		// make sure that the running server process handles shutdown signals gracefully
+		// make sure that the running server process handles (shutdown) signals gracefully
 		setupSignalHandling(cfg)
 
 		// build the repositories storing the matomatInstance data
