@@ -71,6 +71,8 @@ func (m *Matomat) IsAllowed(userID uint32, action string) bool {
 	adminRequiredActions[ACTION_ITEMS_CREATE] = ACTION_ITEMS_CREATE
 	adminRequiredActions[ACTION_ITEMS_ITEMID_EDIT] = ACTION_ITEMS_ITEMID_EDIT
 	adminRequiredActions[ACTION_ITEMS_ITEMID_DELETE] = ACTION_ITEMS_ITEMID_DELETE
+	adminRequiredActions[ACTION_USERS_USERID_ADMIN_SET] = ACTION_USERS_USERID_ADMIN_SET
+	adminRequiredActions[ACTION_USERS_USERID_ADMIN_UNSET] = ACTION_USERS_USERID_ADMIN_UNSET
 
 	_, requiresAdmin := adminRequiredActions[action]
 
