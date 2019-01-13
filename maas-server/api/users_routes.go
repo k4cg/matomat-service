@@ -44,6 +44,20 @@ func BuildUsersRoutes(auth auth.AuthInterface, handler *UsersApiHandler) []Route
 		},
 
 		Route{
+			"UsersUseridAdminSetPut",
+			strings.ToUpper("Put"),
+			"/v0/users/{userid}/admin/set",
+			AuthenticationMiddleware(auth, handler.UsersUseridAdminSetPut),
+		},
+
+		Route{
+			"UsersUseridAdminUnsetPut",
+			strings.ToUpper("Put"),
+			"/v0/users/{userid}/admin/unset",
+			AuthenticationMiddleware(auth, handler.UsersUseridAdminUnsetPut),
+		},
+
+		Route{
 			"UsersUseridCreditsAddPut",
 			strings.ToUpper("Put"),
 			"/v0/users/{userid}/credits/add",

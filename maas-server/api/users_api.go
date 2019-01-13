@@ -180,6 +180,56 @@ func (uah *UsersApiHandler) UsersUseridDelete(w http.ResponseWriter, r *http.Req
 	w.Write(response)
 }
 
+func (uah *UsersApiHandler) UsersUseridAdminSetPut(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
+	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
+
+	if err == nil {
+		userID, err := extractIDFromModelGet(r.URL.Path)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_ADMIN_SET) {
+			user, err := uah.users.AdminSet(userID)
+			if err == nil {
+				status, response = getResponse(http.StatusOK, newUser(user))
+			} else {
+				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			status, response = getErrorForbiddenResponse()
+		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	w.WriteHeader(status)
+	w.Write(response)
+}
+
+func (uah *UsersApiHandler) UsersUseridAdminUnsetPut(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
+	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
+
+	if err == nil {
+		userID, err := extractIDFromModelGet(r.URL.Path)
+		if err == nil && uah.matomat.IsAllowed(loginUserID, matomat.ACTION_USERS_USERID_ADMIN_UNSET) {
+			user, err := uah.users.AdminUnset(userID)
+			if err == nil {
+				status, response = getResponse(http.StatusOK, newUser(user))
+			} else {
+				status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			status, response = getErrorForbiddenResponse()
+		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	w.WriteHeader(status)
+	w.Write(response)
+}
+
 func (uah *UsersApiHandler) UsersUseridCreditsAddPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
 	status, response := getErrorForbiddenResponse()

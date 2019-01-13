@@ -2,7 +2,6 @@ package users
 
 import (
 	"errors"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,6 +13,7 @@ type Users struct {
 const ERROR_CREATE_USER_USERNAME_ALREADY_TAKEN = "Username already taken"
 const ERROR_PASSWORDS_DO_NOT_MATCH = "Passwords do not match"
 const ERROR_INVALID_USERNAME_OR_PASSWORD = "Invalid username or password"
+const ERROR_UNKNOWN_USER = "Unkown user"
 
 func NewUsers(userRepo UserRepositoryInterface, passwordHashingCost int) *Users {
 	return &Users{userRepo: userRepo, passwordHashingCost: passwordHashingCost}
@@ -29,6 +29,32 @@ func (ua *Users) ListUsers() ([]User, error) {
 
 func (ua *Users) DeleteUser(userID uint32) (User, error) {
 	return ua.userRepo.Delete(userID)
+}
+
+func (ua *Users) AdminSet(userId uint32) (User, error) {
+	user, err := ua.userRepo.Get(userId)
+	if err == nil {
+		if user != (User{}) {
+			user.admin = true
+			user, err = ua.userRepo.Save(user)
+		} else {
+			return user, errors.New(ERROR_UNKNOWN_USER)
+		}
+	}
+	return user, err
+}
+
+func (ua *Users) AdminUnset(userId uint32) (User, error) {
+	user, err := ua.userRepo.Get(userId)
+	if err == nil {
+		if user != (User{}) {
+			user.admin = false
+			user, err = ua.userRepo.Save(user)
+		} else {
+			return user, errors.New(ERROR_UNKNOWN_USER)
+		}
+	}
+	return user, err
 }
 
 func (ua *Users) CreateUser(username string, password string, passwordRepeat string, isAdmin int32) (User, error) {
