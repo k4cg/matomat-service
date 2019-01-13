@@ -34,6 +34,8 @@ const ACTION_USERS_CREATE string = "UsersPost"
 const ACTION_USERS_USERID_CREDITS_TRANSFER string = "UsersUseridCreditsTransferPut"
 const ACTION_USERS_USERID_DELETE string = "UsersUseridDelete"
 const ACTION_USERS_USERID_GET string = "UsersUseridGet"
+const ACTION_USERS_USERID_ADMIN_SET string = "UsersUseridAdminSetPut"
+const ACTION_USERS_USERID_ADMIN_UNSET string = "UsersUseridAdminUnsetPut"
 const ACTION_USERS_USERID_CREDITS_ADD string = "UsersUseridCreditsAddPut"
 const ACTION_USERS_USERID_CREDITS_WITHDRAW string = "UsersUseridCreditsWithdrawPut"
 const ACTION_USERS_USERID_STATS_GET string = "UsersUseridStatsGet"
@@ -45,15 +47,15 @@ const ACTION_SERVICE_STATS = "ServiceStatsGet"
 const ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS string = "Not enough credits"
 const ERROR_TRANSFER_CREDITS_NOT_ENOUGH_CREDITS string = "User does not have enough credits to transfer"
 const ERROR_CREDITS_RECEIVER_REACHED_MAX_CREDITS string = "User cannot accept more credits, credit limit reached"
-const ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER string = "User to transfer credits to not unknown"
-const ERROR_TRANSFER_UNKOWN_CREDITS_SENDER string = "User to transfer credits from unknown"
+const ERROR_TRANSFER_UNKNOWN_CREDITS_RECEIVER string = "User to transfer credits to not unknown"
+const ERROR_TRANSFER_UNKNOWN_CREDITS_SENDER string = "User to transfer credits from unknown"
 const ERROR_USER_CREDITS_WITHDRAW_NOT_ENOUGH_CREDITS string = "Not enough credits. Cannot withdraw more credits than the current balance"
 const ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED string = "Only credit amounts greater or equal to zero allowed"
 const ERROR_ITEMS_NAME_LENGTH_OUT_OF_BOUNDS string = "Item name length out of allowed bounds"
-const ERROR_UNKNOWN_ITEM string = "Unkown item"
-const ERROR_UNKNOWN_USER string = "Unkown user"
-const ERROR_UNKNOWN_USER_FROM string = "Unkown receiving user"
-const ERROR_UNKNOWN_USER_TO string = "Unkown receiving user"
+const ERROR_UNKNOWN_ITEM string = "Unknown item"
+const ERROR_UNKNOWN_USER string = "Unknown user"
+const ERROR_UNKNOWN_USER_FROM string = "Unknown receiving user"
+const ERROR_UNKNOWN_USER_TO string = "Unknown receiving user"
 
 func NewMatomat(config Config, eventDispatcher events.EventDispatcher, userRepo users.UserRepositoryInterface, itemRepo items.ItemRepositoryInterface, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *Matomat {
 	return &Matomat{config: config, eventDispatcher: eventDispatcher, userRepo: userRepo, itemRepo: itemRepo, itemStatsRepo: itemStatsRepo, userItemsStatsRepo: userItemsStatsRepo}
@@ -69,6 +71,8 @@ func (m *Matomat) IsAllowed(userID uint32, action string) bool {
 	adminRequiredActions[ACTION_ITEMS_CREATE] = ACTION_ITEMS_CREATE
 	adminRequiredActions[ACTION_ITEMS_ITEMID_EDIT] = ACTION_ITEMS_ITEMID_EDIT
 	adminRequiredActions[ACTION_ITEMS_ITEMID_DELETE] = ACTION_ITEMS_ITEMID_DELETE
+	adminRequiredActions[ACTION_USERS_USERID_ADMIN_SET] = ACTION_USERS_USERID_ADMIN_SET
+	adminRequiredActions[ACTION_USERS_USERID_ADMIN_UNSET] = ACTION_USERS_USERID_ADMIN_UNSET
 
 	_, requiresAdmin := adminRequiredActions[action]
 
@@ -206,13 +210,13 @@ func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amount int
 						retErr = errors.New(ERROR_UNKNOWN_USER_TO)
 					}
 				} else {
-					retErr = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_RECEIVER)
+					retErr = errors.New(ERROR_TRANSFER_UNKNOWN_CREDITS_RECEIVER)
 				}
 			} else {
 				retErr = errors.New(ERROR_UNKNOWN_USER_FROM)
 			}
 		} else {
-			retErr = errors.New(ERROR_TRANSFER_UNKOWN_CREDITS_SENDER)
+			retErr = errors.New(ERROR_TRANSFER_UNKNOWN_CREDITS_SENDER)
 		}
 	} else {
 		retErr = errors.New(ERROR_USER_ONLY_POSITIVE_OR_ZERO_CREDIT_VALUES_ALLOWED)

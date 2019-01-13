@@ -464,6 +464,76 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /users/{userId}/admin/set:
+    put:
+      security:
+        - jwtTokenAuth: []
+      tags:
+        - users
+      summary: Promote a user to admin
+      description: Promote a user to admin. This can only be done by other admin users.
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+            format: int32
+          required: true
+          description: The ID of the user to promote to admin
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          description: Logged in user is not allowed to promote given user to admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/admin/unset:
+    put:
+      security:
+        - jwtTokenAuth: []
+      tags:
+        - users
+      summary: Remove admin capabilities from an user
+      description: Remove admin capabilities from an user. This can only be done by other admin users.
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+            format: int32
+          required: true
+          description: The ID of the user to remove admin capabilities from
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          description: Logged in user is not allowed to remove the admin capabilities from the given user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /users/{userId}/credits/withdraw:
     put:
       security:
