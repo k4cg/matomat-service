@@ -13,7 +13,7 @@ type Users struct {
 const ERROR_CREATE_USER_USERNAME_ALREADY_TAKEN = "Username already taken"
 const ERROR_PASSWORDS_DO_NOT_MATCH = "Passwords do not match"
 const ERROR_INVALID_USERNAME_OR_PASSWORD = "Invalid username or password"
-const ERROR_UNKNOWN_USER = "Unkown user"
+const ERROR_UNKNOWN_USER = "Unknown user"
 
 func NewUsers(userRepo UserRepositoryInterface, passwordHashingCost int) *Users {
 	return &Users{userRepo: userRepo, passwordHashingCost: passwordHashingCost}
