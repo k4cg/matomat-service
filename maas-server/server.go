@@ -109,19 +109,24 @@ func buildUsers(cfg *config.Config, userRepo users.UserRepositoryInterface) *use
 
 func buildEventDispatcher(cfg *config.Config, itemStatsRepo items.ItemStatsRepositoryInterface, userItemsStatsRepo users.UserItemsStatsRepositoryInterface) *events.EventDispatcher {
 	//TODO add error handling / checking on config value retrieval
-	clientID, _ := cfg.String("event_dispatching.mqtt.client_id")
-	connectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
-	topic, _ := cfg.String("event_dispatching.mqtt.topic")
-	username, _ := cfg.String("event_dispatching.mqtt.username")
-	password, _ := cfg.String("event_dispatching.mqtt.password")
-	enabled, _ := cfg.Bool("event_dispatching.enabled")
+	dispatcher := events.NewEventDispatcher()
 
-	eventHandlerMqtt := events.NewEventHandlerMqtt(connectionString, clientID, topic, enabled, username, password)
 	eventHandlerStatsRepos := events.NewEventHandlerStatsRepos(itemStatsRepo, userItemsStatsRepo)
 
-	dispatcher := events.NewEventDispatcher()
-	dispatcher.Register(eventHandlerMqtt)
 	dispatcher.Register(eventHandlerStatsRepos)
+
+	mqttEnabled, _ := cfg.Bool("event_dispatching.mqtt.enabled")
+	if mqttEnabled {
+		mqttClientID, _ := cfg.String("event_dispatching.mqtt.client_id")
+		mqttConnectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
+		mqttTopic, _ := cfg.String("event_dispatching.mqtt.uopic")
+		mqttUsername, _ := cfg.String("event_dispatching.mqtt.username")
+		mqttPassword, _ := cfg.String("event_dispatching.mqtt.password")
+
+		eventHandlerMqtt := events.NewEventHandlerMqtt(mqttConnectionString, mqttClientID, mqttTopic, mqttUsername, mqttPassword)
+
+		dispatcher.Register(eventHandlerMqtt)
+	}
 
 	return dispatcher
 }

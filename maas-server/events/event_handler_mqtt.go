@@ -11,18 +11,17 @@ type EventHandlerMqtt struct {
 	connectionString string
 	clientID         string
 	topic            string
-	enabled          bool
 	clientOpts       *MQTT.ClientOptions
 }
 
-func NewEventHandlerMqtt(connectionString string, clientID string, topic string, enabled bool, username string, password string) *EventHandlerMqtt {
+func NewEventHandlerMqtt(connectionString string, clientID string, topic string, username string, password string) *EventHandlerMqtt {
 	clientOpts := MQTT.NewClientOptions().AddBroker(connectionString) //connectionString example: "tcp://localhost:4242"
 	clientOpts.SetClientID(clientID)                                  //clientID example: "matomat-server"
 	if len(username) > 0 {
 		clientOpts.SetUsername(username)
 		clientOpts.SetPassword(password)
 	}
-	return &EventHandlerMqtt{connectionString: connectionString, clientID: clientID, topic: topic, enabled: enabled, clientOpts: clientOpts}
+	return &EventHandlerMqtt{connectionString: connectionString, clientID: clientID, topic: topic, clientOpts: clientOpts}
 }
 
 func (eh *EventHandlerMqtt) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost int32, count uint32) {
