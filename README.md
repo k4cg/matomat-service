@@ -5,8 +5,6 @@ This project reimplements the functionality of the current standalone
 a RESTful service. This service then can be consumed by any client.
 
 ## Project contents
-- `maas-client-tty` (will/should) contain a client implementation that can be
-  run on tty
 - `maas-server` contains the service server implementation
 - `maas.yml` contains the service API definition in OpenAPI 3.0 format
 
