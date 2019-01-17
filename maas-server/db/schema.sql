@@ -8,11 +8,6 @@ CREATE TABLE `items_stats` (
 	`consumed` INTEGER NOT NULL
 );
 CREATE TABLE `user_items_stats` (
-	`userID` INTEGER PRIMARY KEY,
-	`itemID` INTEGER NOT NULL,
-	`consumed` INTEGER NOT NULL
-);
-CREATE TABLE `user_items_stats` (
   `userID`INTEGER,
   `itemID` INTEGER not null,
   `consumed` INTEGER not null,
