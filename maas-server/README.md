@@ -31,6 +31,14 @@ Easy creation of a self signed certificate for local TESTING.
 ```
 go run $GOROOT/src/crypto/tls/generate_cert.go --rsa-bits 4096 --host 127.0.0.1,::1,localhost --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
 ```
+## Event Dispatcher
+
+Example MQTT Messages
+
+```
+'matomat;item-consumed;1;2;Bier;100;1'
+'matomat;item-consumed;1;1;Club Mate;100;1'
+```
 
 ## Reference Links
 [awesome-go](https://github.com/avelino/awesome-go)
