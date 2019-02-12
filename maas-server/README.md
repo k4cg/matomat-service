@@ -41,10 +41,10 @@ Example MQTT Messages
 ```
 
 ## Reference Links
-[awesome-go](https://github.com/avelino/awesome-go)
-[config](https://github.com/olebedev/config)
-[mqtt](https://eclipse.org/paho/clients/golang/)
-[sqlite](https://github.com/mattn/go-sqlite3)
-[webservice in go](https://auth0.com/blog/authentication-in-golang/)
-The first basic service stub was originally generated using [Swagger Codegen](https://github.com/swagger-api/swagger-codegen.git), but has moved far from it.
-[memusg - measure peak memory usage](https://github.com/jhclark/memusg)
+* [awesome-go](https://github.com/avelino/awesome-go)
+* [config](https://github.com/olebedev/config)
+* [mqtt](https://eclipse.org/paho/clients/golang/)
+* [sqlite](https://github.com/mattn/go-sqlite3)
+* [webservice in go](https://auth0.com/blog/authentication-in-golang/)
+* The first basic service stub was originally generated using [Swagger Codegen](https://github.com/swagger-api/swagger-codegen.git), but has moved far from it.
+* [memusg - measure peak memory usage](https://github.com/jhclark/memusg)
