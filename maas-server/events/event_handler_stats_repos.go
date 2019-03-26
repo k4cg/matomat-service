@@ -15,6 +15,6 @@ func NewEventHandlerStatsRepos(itemStatsRepo items.ItemStatsRepositoryInterface,
 }
 
 func (eh *EventHandlerStatsRepos) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost int32, count uint32) {
-	_, _ = eh.itemStatsRepo.CountConsumption(userID, count)
+	_, _ = eh.itemStatsRepo.CountConsumption(itemID, count)
 	_ = eh.userItemsStatsRepo.CountConsumption(userID, itemID, count)
 }
