@@ -3,6 +3,7 @@ package events
 import (
 	"log"
 	"strconv"
+	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
@@ -45,6 +46,6 @@ func (eh *EventHandlerMqtt) ItemConsumed(userID uint32, username string, itemID 
 func (eh *EventHandlerMqtt) buildItemConsumedMessage(userID uint32, username string, itemID uint32, itemName string, itemCost int32, count uint32) string {
 	//TODO - shouldn't the username used instead of the user ID?
 	//TODO - the int casts are messy ... improve!
-	message := "matomat;item-consumed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(count)) //TODO implement proper message format
+	message := "matomat;item-consumed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(count)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
 	return message
 }
