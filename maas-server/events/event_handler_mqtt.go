@@ -12,16 +12,18 @@ type EventHandlerMqtt struct {
 	clientID         string
 	topic            string
 	clientOpts       *MQTT.ClientOptions
+	retainMessage    bool
 }
 
-func NewEventHandlerMqtt(connectionString string, clientID string, topic string, username string, password string) *EventHandlerMqtt {
+//TODO - switch constructor to using config struct instead of droelf parameters
+func NewEventHandlerMqtt(connectionString string, clientID string, topic string, username string, password string, retainMessage bool) *EventHandlerMqtt {
 	clientOpts := MQTT.NewClientOptions().AddBroker(connectionString) //connectionString example: "tcp://localhost:4242"
 	clientOpts.SetClientID(clientID)                                  //clientID example: "matomat-server"
 	if len(username) > 0 {
 		clientOpts.SetUsername(username)
 		clientOpts.SetPassword(password)
 	}
-	return &EventHandlerMqtt{connectionString: connectionString, clientID: clientID, topic: topic, clientOpts: clientOpts}
+	return &EventHandlerMqtt{connectionString: connectionString, clientID: clientID, topic: topic, clientOpts: clientOpts, retainMessage: retainMessage}
 }
 
 func (eh *EventHandlerMqtt) ItemConsumed(userID uint32, username string, itemID uint32, itemName string, itemCost int32, count uint32) {
@@ -33,7 +35,7 @@ func (eh *EventHandlerMqtt) ItemConsumed(userID uint32, username string, itemID 
 			log.Print("EventHandlerMqtt: error trying to connect to MQTT broker")
 		}
 	} else {
-		token := client.Publish(eh.topic, 0, false, eh.buildItemConsumedMessage(userID, username, itemID, itemName, itemCost, count))
+		token := client.Publish(eh.topic, 0, eh.retainMessage, eh.buildItemConsumedMessage(userID, username, itemID, itemName, itemCost, count))
 		//wait for receipt from broker
 		token.Wait()
 		client.Disconnect(250)

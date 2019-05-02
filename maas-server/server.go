@@ -119,11 +119,12 @@ func buildEventDispatcher(cfg *config.Config, itemStatsRepo items.ItemStatsRepos
 	if mqttEnabled {
 		mqttClientID, _ := cfg.String("event_dispatching.mqtt.client_id")
 		mqttConnectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
-		mqttTopic, _ := cfg.String("event_dispatching.mqtt.uopic")
+		mqttTopic, _ := cfg.String("event_dispatching.mqtt.topic")
 		mqttUsername, _ := cfg.String("event_dispatching.mqtt.username")
 		mqttPassword, _ := cfg.String("event_dispatching.mqtt.password")
+		mqttRetainMessage, _ := cfg.Bool("event_dispatching.mqtt.retain_messages")
 
-		eventHandlerMqtt := events.NewEventHandlerMqtt(mqttConnectionString, mqttClientID, mqttTopic, mqttUsername, mqttPassword)
+		eventHandlerMqtt := events.NewEventHandlerMqtt(mqttConnectionString, mqttClientID, mqttTopic, mqttUsername, mqttPassword, mqttRetainMessage)
 
 		dispatcher.Register(eventHandlerMqtt)
 	}
