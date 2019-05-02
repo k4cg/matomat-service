@@ -111,23 +111,26 @@ func buildEventDispatcher(cfg *config.Config, itemStatsRepo items.ItemStatsRepos
 	//TODO add error handling / checking on config value retrieval
 	dispatcher := events.NewEventDispatcher()
 
-	eventHandlerStatsRepos := events.NewEventHandlerStatsRepos(itemStatsRepo, userItemsStatsRepo)
+	//SORRY adding the following is an evil hack, abusing the concept
+	// but required to implement the desired behavior with minimal change
+	//If anybody feels like it, please feel free to improve!
+	//mqttEnabled, _ := cfg.Bool("event_dispatching.mqtt.enabled")
+	//if mqttEnabled {
+	mqttClientID, _ := cfg.String("event_dispatching.mqtt.client_id")
+	mqttConnectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
+	mqttTopic, _ := cfg.String("event_dispatching.mqtt.topic")
+	mqttUsername, _ := cfg.String("event_dispatching.mqtt.username")
+	mqttPassword, _ := cfg.String("event_dispatching.mqtt.password")
+	mqttRetainMessage, _ := cfg.Bool("event_dispatching.mqtt.retain_messages")
+
+	eventHandlerMqtt := events.NewEventHandlerMqtt(mqttConnectionString, mqttClientID, mqttTopic, mqttUsername, mqttPassword, mqttRetainMessage)
+
+	dispatcher.Register(eventHandlerMqtt)
+	//}
+
+	eventHandlerStatsRepos := events.NewEventHandlerStatsRepos(itemStatsRepo, userItemsStatsRepo, eventHandlerMqtt)
 
 	dispatcher.Register(eventHandlerStatsRepos)
-
-	mqttEnabled, _ := cfg.Bool("event_dispatching.mqtt.enabled")
-	if mqttEnabled {
-		mqttClientID, _ := cfg.String("event_dispatching.mqtt.client_id")
-		mqttConnectionString, _ := cfg.String("event_dispatching.mqtt.connection_string")
-		mqttTopic, _ := cfg.String("event_dispatching.mqtt.topic")
-		mqttUsername, _ := cfg.String("event_dispatching.mqtt.username")
-		mqttPassword, _ := cfg.String("event_dispatching.mqtt.password")
-		mqttRetainMessage, _ := cfg.Bool("event_dispatching.mqtt.retain_messages")
-
-		eventHandlerMqtt := events.NewEventHandlerMqtt(mqttConnectionString, mqttClientID, mqttTopic, mqttUsername, mqttPassword, mqttRetainMessage)
-
-		dispatcher.Register(eventHandlerMqtt)
-	}
 
 	return dispatcher
 }
