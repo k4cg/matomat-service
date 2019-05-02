@@ -41,3 +41,4 @@ event_dispatching:
     topic: <NAME OF THE MQTT TOPIC, EXAMPLE: matomat>
     username: <USERNAME FOR MQTT BROKER>
     password: <PASSWORD FOR MQTT BROKER>
+    retain_messages: true
