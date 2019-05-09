@@ -36,8 +36,8 @@ go run $GOROOT/src/crypto/tls/generate_cert.go --rsa-bits 4096 --host 127.0.0.1,
 Example MQTT Messages
 
 ```
-'matomat;item-consumed;1;2;Bier;100;1'
-'matomat;item-consumed;1;1;Club Mate;100;1'
+'matomat;item-consumed;1;2;Bier;100;1;1556827023'
+'matomat;item-consumed;1;1;Club Mate;100;1;1556827042'
 ```
 
 ## Reference Links
