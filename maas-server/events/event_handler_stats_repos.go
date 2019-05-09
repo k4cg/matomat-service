@@ -35,12 +35,23 @@ func (eh *EventHandlerStatsRepos) ItemConsumed(userID uint32, username string, i
 		}
 	}
 
+	itemStats, _ := eh.itemStatsRepo.Get(itemID)
+
+	//TODO ??? run them concurrently?
 	eh.eventHandlerMessaging.TotalItemConsumedForUserChanged(userID, username, itemID, itemName, itemCost, totalCount)
+	eh.eventHandlerMessaging.TotalItemConsumedChanged(itemID, itemName, itemCost, itemStats.Consumed)
 }
 
 //SORRY adding the following is an evil hack, abusing the concept
 // but required to implement the desired behavior with minimal change
 //If anybody feels like it, please feel free to improve!
 func (eh *EventHandlerStatsRepos) TotalItemConsumedForUserChanged(userID uint32, username string, itemID uint32, itemName string, itemCost int32, totalCount uint32) {
+	//do nothing ... as said, evil hack, badly implemented but will work
+}
+
+//SORRY adding the following is an even more evil hack, abusing the concept even more
+// but required to implement the desired behavior with minimal change
+//If anybody feels like it, please feel free to improve!
+func (eh *EventHandlerStatsRepos) TotalItemConsumedChanged(itemID uint32, itemName string, itemCost int32, totalCount uint32) {
 	//do nothing ... as said, evil hack, badly implemented but will work
 }

@@ -52,6 +52,18 @@ func (eh *EventHandlerMqtt) buildTotalItemConsumedForUserChanged(userID uint32, 
 	return message
 }
 
+//SORRY adding the following is an even more evil hack, abusing the concept even more
+// but required to implement the desired behavior with minimal change
+//If anybody feels like it, please feel free to improve!
+func (eh *EventHandlerMqtt) TotalItemConsumedChanged(itemID uint32, itemName string, itemCost int32, totalCount uint32) {
+	eh.publishMessage(eh.buildTotalItemConsumedChanged(itemID, itemName, itemCost, totalCount))
+}
+
+func (eh *EventHandlerMqtt) buildTotalItemConsumedChanged(itemID uint32, itemName string, itemCost int32, totalCount uint32) string {
+	message := "matomat;total-items-consumed;" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(totalCount)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
+	return message
+}
+
 func (eh *EventHandlerMqtt) publishMessage(message string) {
 	client := MQTT.NewClient(eh.clientOpts)
 	// connect to the broker using the mqtt client
