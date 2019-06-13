@@ -1,8 +1,8 @@
 package events
 
 import (
+	"encoding/json"
 	"log"
-	"strconv"
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -34,8 +34,10 @@ func (eh *EventHandlerMqtt) ItemConsumed(userID uint32, username string, itemID 
 func (eh *EventHandlerMqtt) buildItemConsumedMessage(userID uint32, username string, itemID uint32, itemName string, itemCost int32, count uint32) string {
 	//TODO - shouldn't the username used instead of the user ID?
 	//TODO - the int casts are messy ... improve!
-	message := "matomat;item-consumed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(count)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
-	return message
+	//message := "matomat;item-consumed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(count)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
+	messageObject := NewItemConsumedMessage(time.Now().Unix(), userID, itemID, itemName, itemCost, count)
+	message, _ := json.Marshal(messageObject)
+	return string(message)
 }
 
 //SORRY adding the following is an evil hack, abusing the concept
@@ -48,8 +50,10 @@ func (eh *EventHandlerMqtt) TotalItemConsumedForUserChanged(userID uint32, usern
 func (eh *EventHandlerMqtt) buildTotalItemConsumedForUserChanged(userID uint32, username string, itemID uint32, itemName string, itemCost int32, totalCount uint32) string {
 	//TODO - shouldn't the username used instead of the user ID?
 	//TODO - the int casts are messy ... improve!
-	message := "matomat;total-item-consumed-for-user-changed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(totalCount)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
-	return message
+	//message := "matomat;total-item-consumed-for-user-changed;" + strconv.Itoa(int(userID)) + ";" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(totalCount)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
+	messageObject := NewTotalItemConsumedForUserChangedMessage(time.Now().Unix(), userID, itemID, itemName, itemCost, totalCount)
+	message, _ := json.Marshal(messageObject)
+	return string(message)
 }
 
 //SORRY adding the following is an even more evil hack, abusing the concept even more
@@ -60,8 +64,10 @@ func (eh *EventHandlerMqtt) TotalItemConsumedChanged(itemID uint32, itemName str
 }
 
 func (eh *EventHandlerMqtt) buildTotalItemConsumedChanged(itemID uint32, itemName string, itemCost int32, totalCount uint32) string {
-	message := "matomat;total-items-consumed;" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(totalCount)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
-	return message
+	//message := "matomat;total-items-consumed;" + strconv.Itoa(int(itemID)) + ";" + itemName + ";" + strconv.Itoa(int(itemCost)) + ";" + strconv.Itoa(int(totalCount)) + ";" + strconv.FormatInt(time.Now().Unix(), 10) //TODO implement proper message format
+	messageObject := NewTotalItemConsumedChangedMessage(time.Now().Unix(), itemID, itemName, itemCost, totalCount)
+	message, _ := json.Marshal(messageObject)
+	return string(message)
 }
 
 func (eh *EventHandlerMqtt) publishMessage(message string) {
