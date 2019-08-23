@@ -21,3 +21,7 @@ CREATE TABLE `users` (
 	`credits` INTEGER NOT NULL,
 	`admin` INTEGER NOT NULL
 );
+CREATE TABLE `item_inventory` (
+	`itemID` INTEGER PRIMARY KEY,
+	`stock` INTEGER
+);
