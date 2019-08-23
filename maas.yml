@@ -98,6 +98,10 @@ paths:
                   type: integer
                   format: int32
                   minimum: 0
+                stock:
+                  description: The number of items in stock, if omitted or set to a value < 0, stock settings will be ignored (this means an unlimited number of items will be available).
+                  type: integer
+                  format: int32
               required:
                 - name
                 - cost
@@ -812,7 +816,7 @@ components:
       items:
         $ref: '#/components/schemas/ItemStats'
     Item:
-      description: Represenation of a Item, containing its name and cost (in credits)
+      description: Represenation of a Item, containing its name and cost (in credits). If stock is -1 then no stock is active.
       type: object
       properties:
         id:
@@ -821,6 +825,9 @@ components:
         name:
           type: string
         cost:
+          type: integer
+          format: int32
+        stock:
           type: integer
           format: int32
     ItemStats:
