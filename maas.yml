@@ -292,7 +292,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ''#/components/schemas/Item'Stats'
+                $ref: '#/components/schemas/ItemStats'
         default:
           description: An error occured
           content:
