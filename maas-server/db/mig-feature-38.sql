@@ -1,4 +1,2 @@
-CREATE TABLE `item_inventory` (
-	`itemID` INTEGER PRIMARY KEY,
-	`stock` INTEGER
-);
+ALTER TABLE items
+	ADD stock INTEGER DEFAULT -1;

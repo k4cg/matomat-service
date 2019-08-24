@@ -1,7 +1,8 @@
 CREATE TABLE `items` (
 	`ID` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name` VARCHAR(256) NOT NULL,
-	`cost` INTEGER
+	`cost` INTEGER,
+	`stock` INTEGER
 );
 CREATE TABLE `items_stats` (
 	`itemID` INTEGER PRIMARY KEY,
@@ -20,8 +21,4 @@ CREATE TABLE `users` (
 	`password` VARCHAR(256) NOT NULL,
 	`credits` INTEGER NOT NULL,
 	`admin` INTEGER NOT NULL
-);
-CREATE TABLE `item_inventory` (
-	`itemID` INTEGER PRIMARY KEY,
-	`stock` INTEGER
 );
