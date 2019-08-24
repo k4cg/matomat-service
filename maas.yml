@@ -99,9 +99,10 @@ paths:
                   format: int32
                   minimum: 0
                 stock:
-                  description: The number of items in stock, if omitted or set to a value < 0, stock settings will be ignored (this means an unlimited number of items will be available).
+                  description: The number of items in stock, if omitted stock settings will be ignored (this means an unlimited number of items will be available).
                   type: integer
                   format: int32
+                  minimum: 0
               required:
                 - name
                 - cost
@@ -310,7 +311,7 @@ paths:
       tags:
         - items
       summary: Set the stock of an Item
-      description: Sets the stock of the Item to the given value. If a value < 0 is set, stock handling will be disabled.
+      description: Sets the stock of the Item to the given value. This can only be done by admins.
       parameters:
         - in: path
           name: itemId
@@ -320,7 +321,7 @@ paths:
           required: true
           description: The ID of the Item for which the stock needs to be changed
       requestBody:
-        description: Information required to update an item
+        description: Information required to update an item stock
         required: true
         content:
           application/x-www-form-urlencoded:
@@ -328,9 +329,10 @@ paths:
               type: object
               properties:
                 stock:
-                  description: The number of items in stock, if omitted or set to a value < 0, stock settings will be disabled (this means an unlimited number of items will be available).
+                  description: The number of items in stock
                   type: integer
                   format: int32
+                  minimum: 0
               required:
                 - stock
       responses:
@@ -346,6 +348,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    delete:
+      security:
+        - jwtTokenAuth: []
+      tags:
+        - items
+      summary: Disable Item stock
+      description: Disable the Item stock, this means that the item now has unlimited stock. This can only be done by admins.
+      parameters:
+        - in: path
+          name: itemId
+          schema:
+            type: integer
+            format: int32
+          required: true
+          description: The ID of the Item for which the stock feature needs to be removed
+      responses:
+        200:
+          description: Success. Returns the modified Item object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /users:
     get:
       security:
