@@ -2,7 +2,7 @@ CREATE TABLE `items` (
 	`ID` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name` VARCHAR(256) NOT NULL,
 	`cost` INTEGER,
-	`stock` INTEGER
+	`stock` INTEGER DEFAULT NULL
 );
 CREATE TABLE `items_stats` (
 	`itemID` INTEGER PRIMARY KEY,
@@ -10,8 +10,8 @@ CREATE TABLE `items_stats` (
 );
 CREATE TABLE `user_items_stats` (
   `userID`INTEGER,
-  `itemID` INTEGER not null,
-  `consumed` INTEGER not null,
+  `itemID` INTEGER NOT NULL,
+  `consumed` INTEGER NOT NULL,
   constraint user_items_stats_pk
   primary key (userID, itemID)
 );
