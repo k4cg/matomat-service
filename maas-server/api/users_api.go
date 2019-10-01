@@ -21,7 +21,6 @@ type UsersApiHandler struct {
 }
 
 const FORM_KEY_CREDITS string = "credits"
-const FORM_KEY_COST string = "cost"
 
 func NewUsersApiHandler(auth auth.AuthInterface, users *users.Users, matomat *matomat.Matomat) *UsersApiHandler {
 	return &UsersApiHandler{auth: auth, users: users, matomat: matomat}

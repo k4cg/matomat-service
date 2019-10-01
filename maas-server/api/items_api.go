@@ -17,19 +17,26 @@ type ItemsApiHandler struct {
 	matomat *matomat.Matomat
 }
 
+const FORM_KEY_COST string = "cost"
+const FORM_KEY_STOCK string = "stock"
+
 func NewItemsApiHandler(auth auth.AuthInterface, matomat *matomat.Matomat) *ItemsApiHandler {
 	return &ItemsApiHandler{auth: auth, matomat: matomat}
 }
 
-func extractItemCreateData(r *http.Request) (string, int32, error) {
+func extractItemCreateData(r *http.Request) (string, int32, int32, error) {
 	var err error
 
 	r.ParseForm()
 
 	itemName, err := formGet(r, FORM_KEY_NAME)
 	itemCost, err := formGetInt32(r, FORM_KEY_COST)
+	itemStock, err := formGetInt32(r, FORM_KEY_STOCK)
+	if err != nil {
+		err = nil
+	}
 
-	return itemName, itemCost, err
+	return itemName, itemCost, itemStock, err
 }
 
 func extractItemEditData(r *http.Request) (uint32, string, int32, error) {
@@ -42,6 +49,17 @@ func extractItemEditData(r *http.Request) (uint32, string, int32, error) {
 	itemCost, err := formGetInt32(r, FORM_KEY_COST)
 
 	return itemID, itemName, itemCost, err
+}
+
+func extractItemStockData(r *http.Request) (uint32, int32, error) {
+	var err error
+
+	r.ParseForm()
+
+	itemID, err := extractIDFromModelGet(r.URL.Path)
+	itemStock, err := formGetInt32(r, FORM_KEY_STOCK)
+
+	return itemID, itemStock, err
 }
 
 func (iah *ItemsApiHandler) ItemsGet(w http.ResponseWriter, r *http.Request) {
@@ -104,9 +122,9 @@ func (iah *ItemsApiHandler) ItemsPost(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil {
 		if iah.matomat.IsAllowed(loginUserID, matomat.ACTION_ITEMS_CREATE) {
-			name, cost, err := extractItemCreateData(r)
+			name, cost, stock, err := extractItemCreateData(r)
 			if err == nil {
-				item, err := iah.matomat.ItemCreate(name, cost)
+				item, err := iah.matomat.ItemCreate(name, cost, stock)
 				if err == nil {
 					status, response = getResponse(http.StatusCreated, newItem(item))
 				} else {
@@ -135,6 +153,60 @@ func (iah *ItemsApiHandler) ItemsItemidPut(w http.ResponseWriter, r *http.Reques
 			ID, name, cost, err := extractItemEditData(r)
 			if err == nil {
 				item, err := iah.matomat.ItemUpdate(ID, name, cost)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newItem(item))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
+			} else {
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+			}
+		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	w.WriteHeader(status)
+	w.Write(response)
+}
+
+func (iah *ItemsApiHandler) ItemsItemidStockPut(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
+	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
+
+	if err == nil {
+		if iah.matomat.IsAllowed(loginUserID, matomat.ACTION_ITEMS_ITEMID_STOCK_PUT) {
+			ID, stock, err := extractItemStockData(r)
+			if err == nil {
+				item, err := iah.matomat.ItemStockUpdate(ID, stock)
+				if err == nil {
+					status, response = getResponse(http.StatusOK, newItem(item))
+				} else {
+					status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+				}
+			} else {
+				status, response = getErrorResponse(http.StatusBadRequest, err.Error())
+			}
+		}
+	} else {
+		status, response = getErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	w.WriteHeader(status)
+	w.Write(response)
+}
+
+func (iah *ItemsApiHandler) ItemsItemidStockDelete(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(DEFAULT_HEADER_CONTENT_TYPE_KEY, DEFAULT_HEADER_CONTENT_TYPE_VALUE_JSON)
+	status, response := getErrorForbiddenResponse()
+	loginUserID, err := getUserIDFromContext(r)
+
+	if err == nil {
+		if iah.matomat.IsAllowed(loginUserID, matomat.ACTION_ITEMS_ITEMID_STOCK_DELETE) {
+			ID, err := extractIDFromModelGet(r.URL.Path)
+			if err == nil {
+				item, err := iah.matomat.ItemStockDelete(ID)
 				if err == nil {
 					status, response = getResponse(http.StatusOK, newItem(item))
 				} else {

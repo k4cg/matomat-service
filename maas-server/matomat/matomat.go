@@ -25,6 +25,8 @@ const ACTION_ITEMS_ITEMID_DELETE string = "ItemsItemidDelete"
 const ACTION_ITEMS_ITEMID_GET string = "ItemsItemidGet"
 const ACTION_ITEMS_ITEMID_EDIT string = "ItemsItemidPut"
 const ACTION_ITEMS_ITEMID_STATS_GET string = "ItemsItemidStatsGet"
+const ACTION_ITEMS_ITEMID_STOCK_PUT string = "ItemsItemidPut"
+const ACTION_ITEMS_ITEMID_STOCK_DELETE string = "ItemsItemidDelete"
 const ACTION_ITEMS_LIST string = "ItemsGet"
 const ACTION_ITEMS_CREATE string = "ItemsPost"
 const ACTION_ITEMS_STATS_GET string = "ItemsStatsGet"
@@ -71,6 +73,8 @@ func (m *Matomat) IsAllowed(userID uint32, action string) bool {
 	adminRequiredActions[ACTION_ITEMS_CREATE] = ACTION_ITEMS_CREATE
 	adminRequiredActions[ACTION_ITEMS_ITEMID_EDIT] = ACTION_ITEMS_ITEMID_EDIT
 	adminRequiredActions[ACTION_ITEMS_ITEMID_DELETE] = ACTION_ITEMS_ITEMID_DELETE
+	adminRequiredActions[ACTION_ITEMS_ITEMID_STOCK_PUT] = ACTION_ITEMS_ITEMID_STOCK_PUT
+	adminRequiredActions[ACTION_ITEMS_ITEMID_STOCK_DELETE] = ACTION_ITEMS_ITEMID_STOCK_DELETE
 	adminRequiredActions[ACTION_USERS_USERID_ADMIN_SET] = ACTION_USERS_USERID_ADMIN_SET
 	adminRequiredActions[ACTION_USERS_USERID_ADMIN_UNSET] = ACTION_USERS_USERID_ADMIN_UNSET
 
@@ -125,29 +129,20 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 	item, err := m.itemRepo.Get(itemID)
 	if err == nil {
 		if item != (items.Item{}) {
-			user, err := m.userRepo.Get(userID)
+			item, itemStatsToReturn, err = m.ItemConsumeHandleCredits(item, userID)
 			if err == nil {
-				if user != (users.User{}) {
-					if m.HasEnoughCredits(user.Credits, item.Cost) {
-						remainingCredits = user.Credits - item.Cost
-						user.Credits = remainingCredits
-						_, err = m.userRepo.Save(user)
-						if err == nil {
-							m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost, 1)
-							itemStats, err := m.itemStatsRepo.Get(itemID)
-							if err == nil {
-								itemStatsToReturn = itemStats
-							} else {
-								retErr = err
-							}
-						} else {
-							retErr = err
-						}
-					} else {
-						retErr = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
-					}
+
+			} else {
+
+			}
+			item, itemStatsToReturn, err = m.ItemConsumeHandleStock(item)
+			if err == nil {
+				m.eventDispatcher.ItemConsumed(user.ID, user.Username, item.ID, item.Name, item.Cost, 1)
+				itemStats, err := m.itemStatsRepo.Get(item.ID)
+				if err == nil {
+					itemStatsToReturn = itemStats
 				} else {
-					retErr = errors.New(ERROR_UNKNOWN_USER)
+					retErr = err
 				}
 			} else {
 				retErr = err
@@ -165,6 +160,35 @@ func (m *Matomat) ItemConsume(userID uint32, itemID uint32) (items.Item, items.I
 	}
 
 	return item, itemStatsToReturn, retErr
+}
+
+func (m *Matomat) ItemConsumeHandleCredits(item items.Item, userID uint32) (items.Item, items.ItemStats, error) {
+	var remainingCredits int32
+	var itemStatsToReturn items.ItemStats
+	var retErr error
+
+	user, err := m.userRepo.Get(userID)
+	if err == nil {
+		if user != (users.User{}) {
+			if m.HasEnoughCredits(user.Credits, item.Cost) {
+				remainingCredits = user.Credits - item.Cost
+				user.Credits = remainingCredits
+				_, err = m.userRepo.Save(user)
+			} else {
+				retErr = errors.New(ERROR_CONSUME_ITEM_NOT_ENOUGH_CREDITS)
+			}
+		} else {
+			retErr = errors.New(ERROR_UNKNOWN_USER)
+		}
+	} else {
+		retErr = err
+	}
+
+	return item, itemStatsToReturn, retErr
+}
+
+func (m *Matomat) ItemConsumeHandleStock(userID uint32, itemID uint32) (items.Item, items.ItemStats, error) {
+
 }
 
 func (m *Matomat) CreditsTransfer(fromUserID uint32, toUserID uint32, amount int32) (users.User, int32, error) {
@@ -238,12 +262,12 @@ func (m *Matomat) ItemDelete(itemID uint32) (items.Item, error) {
 	return m.itemRepo.Delete(itemID)
 }
 
-func (m *Matomat) ItemCreate(name string, cost int32) (items.Item, error) {
+func (m *Matomat) ItemCreate(name string, cost int32, stock int32) (items.Item, error) {
 	var retItem items.Item
 	var retErr error
 	if cost >= 0 {
 		if len(name) >= m.config.ItemNameMinLength && len(name) <= m.config.ItemNameMaxLength {
-			item := items.Item{Name: name, Cost: cost}
+			item := items.Item{Name: name, Cost: cost, Stock: stock}
 			item, err := m.itemRepo.Save(item)
 			retItem = item
 			retErr = err
@@ -292,6 +316,50 @@ func (m *Matomat) ItemUpdate(itemID uint32, name string, cost int32) (items.Item
 	return returnedItem, retErr
 }
 
+func (m *Matomat) ItemStockUpdate(itemID uint32, stock int32) (items.Item, error) {
+	var returnedItem items.Item
+	var retErr error
+
+	item, err := m.itemRepo.Get(itemID)
+	if err == nil && item != (items.Item{}) {
+		item.Stock = stock
+		item, err = m.itemRepo.Save(item)
+		returnedItem = item
+		retErr = err
+	} else {
+		retErr = errors.New(ERROR_UNKNOWN_ITEM)
+	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
+	}
+
+	return returnedItem, retErr
+}
+
+func (m *Matomat) ItemStockDelete(itemID uint32) (items.Item, error) {
+	var returnedItem items.Item
+	var retErr error
+
+	item, err := m.itemRepo.Get(itemID)
+	if err == nil && item != (items.Item{}) {
+		item.Stock = nil
+		item, err = m.itemRepo.Save(item)
+		returnedItem = item
+		retErr = err
+	} else {
+		retErr = errors.New(ERROR_UNKNOWN_ITEM)
+	}
+
+	//TODO improve error output
+	if retErr != nil {
+		log.Println(retErr)
+	}
+
+	return returnedItem, retErr
+}
+
 func (m *Matomat) ItemsList() ([]items.Item, error) {
 	return m.itemRepo.List()
 }
@@ -323,6 +391,10 @@ func (m *Matomat) ItemGetStats(itemID uint32) (items.Item, items.ItemStats, erro
 
 func (m *Matomat) ItemStatsList() ([]items.ItemStats, error) {
 	return m.itemStatsRepo.List()
+}
+
+func (m *Matomat) ItemSetStock(itemID uint32, stock int32) (items.Item, error) {
+
 }
 
 func (m *Matomat) UserCreditsAdd(userID uint32, credits int32) (users.User, error) {

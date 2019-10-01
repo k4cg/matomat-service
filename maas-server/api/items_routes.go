@@ -65,6 +65,20 @@ func BuildItemsRoutes(auth auth.AuthInterface, handler *ItemsApiHandler) []Route
 		},
 
 		Route{
+			"ItemsItemidStockPut",
+			strings.ToUpper("Put"),
+			"/v0/items/{itemid}/stock",
+			AuthenticationMiddleware(auth, handler.ItemsItemidStockPut),
+		},
+
+		Route{
+			"ItemsItemidStockDelete",
+			strings.ToUpper("Delete"),
+			"/v0/items/{itemid}/stock",
+			AuthenticationMiddleware(auth, handler.ItemsItemidStockDelete),
+		},
+
+		Route{
 			"ItemsItemidStatsGet",
 			strings.ToUpper("Get"),
 			"/v0/items/{itemid}/stats",
