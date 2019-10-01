@@ -30,11 +30,12 @@ func (r *UserItemsStatsRepoSqlite3) Get(userID uint32) ([]items.ItemStats, error
 			var itemid uint32
 			var consumed uint32
 
-			rows.Scan(&itemid, &consumed)
-
-			itemsStats = append(itemsStats, items.ItemStats{ItemID: itemid, Consumed: consumed})
+			err = rows.Scan(&itemid, &consumed)
+			if err == nil {
+				itemsStats = append(itemsStats, items.ItemStats{ItemID: itemid, Consumed: consumed})
+			}
 		}
-		rows.Close()
+		err = rows.Close()
 	}
 
 	return itemsStats, err
@@ -50,14 +51,14 @@ func (r *UserItemsStatsRepoSqlite3) CountConsumption(userID uint32, itemID uint3
 			stmt, err := r.db.Prepare("INSERT INTO user_items_stats (userID, itemID, consumed) VALUES (?, ?, ?)")
 			if err == nil {
 				_, err = stmt.Exec(userID, itemID, consumed)
+				err = stmt.Close()
 			}
-			stmt.Close()
 		} else {
 			stmt, err := r.db.Prepare("UPDATE user_items_stats SET consumed = consumed + ? WHERE userID=? AND itemID=?")
 			if err == nil {
 				_, err = stmt.Exec(consumed, userID, itemID)
+				err = stmt.Close()
 			}
-			stmt.Close()
 		}
 	}
 	return err

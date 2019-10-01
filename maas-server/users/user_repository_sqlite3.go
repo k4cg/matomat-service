@@ -29,7 +29,7 @@ func (r *UserRepoSqlite3) Get(userID uint32) (User, error) {
 			rows.Scan(&user.ID, &user.Username, &user.Password, &user.Credits, &user.admin)
 			break
 		}
-		rows.Close()
+		err = rows.Close()
 	}
 
 	return user, err
@@ -45,7 +45,7 @@ func (r *UserRepoSqlite3) GetByUsername(username string) (User, error) {
 			rows.Scan(&user.ID, &user.Username, &user.Password, &user.Credits, &user.admin)
 			break
 		}
-		rows.Close()
+		err = rows.Close()
 	}
 
 	return user, err
@@ -64,16 +64,17 @@ func (r *UserRepoSqlite3) List() ([]User, error) {
 			var credits int32
 			var adminInt uint32
 
-			rows.Scan(&id, &username, &password, &credits, &adminInt)
+			err = rows.Scan(&id, &username, &password, &credits, &adminInt)
+			if err == nil {
+				var adminBool bool
+				if adminInt == 1 {
+					adminBool = true
+				}
 
-			var adminBool bool
-			if adminInt == 1 {
-				adminBool = true
+				users = append(users, User{ID: id, Username: username, Password: password, Credits: credits, admin: adminBool})
 			}
-
-			users = append(users, User{ID: id, Username: username, Password: password, Credits: credits, admin: adminBool})
 		}
-		rows.Close()
+		err = rows.Close()
 	}
 
 	return users, err
@@ -93,12 +94,14 @@ func (r *UserRepoSqlite3) Save(user User) (User, error) {
 					adminInt = 1
 				}
 				res, err := stmt.Exec(user.Username, user.Password, user.Credits, adminInt)
-				id, err := res.LastInsertId()
 				if err == nil {
-					//evil cast of int64 => uint32 .... TODO solve this better
-					returnedUser = User{ID: uint32(id), Username: user.Username, Password: user.Password, Credits: user.Credits, admin: user.IsAdmin()}
+					id, err := res.LastInsertId()
+					if err == nil {
+						//evil cast of int64 => uint32 .... TODO solve this better
+						returnedUser = User{ID: uint32(id), Username: user.Username, Password: user.Password, Credits: user.Credits, admin: user.IsAdmin()}
+					}
+					err = stmt.Close()
 				}
-				stmt.Close()
 			}
 		} else {
 			stmt, err := r.db.Prepare("UPDATE users SET username=?, password=?, credits=?, admin=? WHERE ID=?")
@@ -111,7 +114,7 @@ func (r *UserRepoSqlite3) Save(user User) (User, error) {
 				if err == nil {
 					returnedUser = user
 				}
-				stmt.Close()
+				err = stmt.Close()
 			}
 		}
 	}
@@ -126,7 +129,7 @@ func (r *UserRepoSqlite3) Delete(userID uint32) (User, error) {
 		stmt, err := r.db.Prepare("DELETE FROM users WHERE ID=?")
 		if err == nil {
 			_, err = stmt.Exec(user.ID)
-			stmt.Close()
+			err = stmt.Close()
 		}
 	}
 	return user, err

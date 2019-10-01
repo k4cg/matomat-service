@@ -26,10 +26,10 @@ func (r *ItemStatsRepoSqlite3) Get(itemID uint32) (ItemStats, error) {
 	rows, err := r.db.Query("SELECT itemID, consumed FROM items_stats WHERE itemID=?", itemID)
 	if err == nil {
 		for rows.Next() {
-			rows.Scan(&itemStats.ItemID, &itemStats.Consumed)
+			err = rows.Scan(&itemStats.ItemID, &itemStats.Consumed)
 			break
 		}
-		rows.Close()
+		err = rows.Close()
 	}
 
 	return itemStats, err
@@ -48,7 +48,7 @@ func (r *ItemStatsRepoSqlite3) CountConsumption(itemID uint32, consumed uint32) 
 				if err == nil {
 					returnedItemStats = ItemStats{ItemID: itemID, Consumed: consumed}
 				}
-				stmt.Close()
+				err = stmt.Close()
 			}
 		} else {
 			stmt, err := r.db.Prepare("UPDATE items_stats SET consumed = consumed + ? WHERE itemID=?")
@@ -57,7 +57,7 @@ func (r *ItemStatsRepoSqlite3) CountConsumption(itemID uint32, consumed uint32) 
 				if err == nil {
 					returnedItemStats = ItemStats{ItemID: itemID, Consumed: consumed}
 				}
-				stmt.Close()
+				err = stmt.Close()
 			}
 		}
 	}
@@ -74,11 +74,13 @@ func (r *ItemStatsRepoSqlite3) List() ([]ItemStats, error) {
 			var id uint32
 			var consumed uint32
 
-			rows.Scan(&id, &consumed)
+			err = rows.Scan(&id, &consumed)
 
-			itemsStats = append(itemsStats, ItemStats{ItemID: id, Consumed: consumed})
+			if err == nil {
+				itemsStats = append(itemsStats, ItemStats{ItemID: id, Consumed: consumed})
+			}
 		}
-		rows.Close()
+		err = rows.Close()
 	}
 
 	return itemsStats, err
