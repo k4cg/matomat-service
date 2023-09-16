@@ -1,9 +1,0 @@
-language: go
-
-go:
-  - "1.11"
-
-before_script: cd maas-server
-
-script:
-  - go build
