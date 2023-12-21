@@ -1,4 +1,4 @@
-# Matomat - ReWrite = Matomat as a Service = MaaS
+# Matomat as a Service = MaaS
 
 This project reimplements the functionality of the current standalone
 [Matomat](https://github.com/k4cg/matomat) application in the form of

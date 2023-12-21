@@ -5,6 +5,9 @@ server.exe
 *.key
 *.pem
 *.crt
+*.csr
 test.html
 config.yml
 memusg
+maas-server
+.tool-versions
